@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
     ArgChange _(argc, argv);
     if (argc < 2) {
         Cout << ">>";
+        Clog << ">>";
         std::string in;
         Cin.getline(in);
         return command_str(in.c_str(), 0);

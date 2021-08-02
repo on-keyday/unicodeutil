@@ -42,7 +42,7 @@ int STDCALL command_argv(int argc, char **argv) {
     else if (cmd == "help") {
         const char *helpstr =
             R"(help:
-    if command line argument is empty, prompt ">>" will show and 
+    if command line argument is empty, prompt ">>>>" or ">>" will show and 
     YOU need to input more!
     help:
         show this help
@@ -81,6 +81,7 @@ int STDCALL command_argv(int argc, char **argv) {
                 <range>:="r"<number>?"-"<number>?
                 <number>:=(hex(begin with "0x") or bin(begin with "0b") or digit)
     txt2bin [<option>] <txt> <bin>:
+        make binary for this program from unicodedata.txt 
         <txt>:path to unicodedata.txt
         <bin>:path to unicodedata.bin (any name)
         -a <file>:refer EastAsianWide.txt
