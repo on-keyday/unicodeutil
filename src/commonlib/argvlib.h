@@ -9,10 +9,10 @@
 #include "project_name.h"
 #ifdef _WIN32
 #include <Windows.h>
+#endif
 
 #include <string_view>
 #include <vector>
-#endif
 namespace PROJECT_NAME {
 
     template <class C, class String, template <class...> class Vec>

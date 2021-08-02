@@ -5,8 +5,8 @@
 */
 
 #pragma once
-#include <stddef.h>
 
+#include <cmath>
 #include <map>
 #include <string>
 
