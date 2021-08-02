@@ -98,7 +98,7 @@ int STDCALL command_argv(int argc, char **argv) {
            -f <utf8|utf16|utf32>:set <codes> coecs (default:(same as command))
            -h :<codes> are hex which not begin with "0x"
            -s :<codes> are not tokenaized (ex:e897a4)
-        )";
+)";
         Clog << helpstr;
         return 0;
     }
