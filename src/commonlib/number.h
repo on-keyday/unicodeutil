@@ -9,8 +9,8 @@
 #include <stdexcept>
 #include <type_traits>
 
+#include "learnstd.h"
 #include "project_name.h"
-
 namespace PROJECT_NAME {
 
     struct divbyzero_exception : std::logic_error {
@@ -123,4 +123,24 @@ namespace PROJECT_NAME {
     DEFINE_ASSIGN_OPERATOR(^=, false, "")
 #undef DEFINE_INT_OPERATOR
 #undef DEFINE_ASSIGN_OPERATOR
+
+    enum class CalcType {
+        constant,
+        var,
+    };
+
+    struct Calcable {
+        CalcType type;
+        Anything obj;
+
+        template <class Ret = double, class... Args>
+        Ret operator()(Args&&... d) {
+            switch {
+                case CalcType::constant:
+                    return (Ret)cast_to<double>(obj);
+                case CalcType::var:
+            }
+        }
+    };
+
 }  // namespace PROJECT_NAME

@@ -45,8 +45,8 @@ namespace PROJECT_NAME {
 #elif defined(__LITTLE_ENDIAN__)
         return false;
 #else
-        static const int i = 1;
-        static const bool b = (const bool)*(char*)&i;
+        const int i = 1;
+        const bool b = (const bool)*(char*)&i;
         return b;
 #endif
     }

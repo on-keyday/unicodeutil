@@ -334,7 +334,7 @@ namespace PROJECT_NAME {
     enum class FType {
         none,
         obj,
-        ptr
+        ptr,
     };
 
     template <class Ret, class... Args>
