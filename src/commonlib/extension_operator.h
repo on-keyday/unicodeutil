@@ -45,7 +45,6 @@ namespace PROJECT_NAME {
         }
         return r;
     }
-
 #define DEFINE_OPERATOR_RSHIFT_NUM(TYPE)                                    \
     template <class Buf>                                                    \
     auto& operator>>(Reader<Buf>& r, TYPE& out) {                           \
@@ -167,12 +166,14 @@ namespace PROJECT_NAME {
         return r;
     }
 
-    template <class Buf, class Str, class = std::enable_if_t<!std::is_function<Str>::value, void>>
+    template <class Buf, class Str,
+              class = std::enable_if_t<!std::is_function<Str>::value && !std::is_arithmetic<Str>::value, void>>
     decltype(auto) operator>>(Reader<Buf>& r, Str& str) {
         return output_str<Buf, Str>(std::forward<Reader<Buf>>(r), str);
     }
 
-    template <class Buf, class Str, class = std::enable_if_t<!std::is_function<Str>::value, void>>
+    template <class Buf, class Str,
+              class = std::enable_if_t<!std::is_function<Str>::value && !std::is_arithmetic<Str>::value, void>>
     decltype(auto) operator>>(Reader<Buf>&& r, Str& str) {
         return output_str<Buf, Str>(std::forward<Reader<Buf>>(r), str);
     }
