@@ -194,7 +194,7 @@ namespace PROJECT_NAME {
 #if _WIN32
             std::wstring tmp;
             Reader(in) >> tmp;
-            file.open(tmp);
+            file.open(tmp.c_str());
 #else
             file.open(in);
 #endif
