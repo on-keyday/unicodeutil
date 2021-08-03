@@ -42,7 +42,7 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
 
     Cout << show;
 #ifdef COMMONLIB2_IS_UNIX_LIKE
-    if (!Cout.is_file() && !index) {
+    if (!index) {
         Cout << "\n";
     }
 #endif
