@@ -39,6 +39,18 @@ namespace PROJECT_NAME {
         return res;
     }
 
+    constexpr bool is_big_endian() {
+#if defined(__BIG_ENDIAN__)
+        return true;
+#elif defined(__LITTLE_ENDIAN__)
+        return false;
+#else
+        static const int i = 1;
+        static const bool b = (const bool)*(char*)&i;
+        return b;
+#endif
+    }
+
     template <class T>
     T translate_byte_net_and_host(const char* s) {
 #if defined(__BIG_ENDIAN__)
@@ -46,9 +58,7 @@ namespace PROJECT_NAME {
 #elif defined(__LITTLE_ENDIAN__)
         return translate_byte_reverse<T>(s);
 #else
-        static const int i = 1;
-        static const bool b = (const bool)*(char*)&i;
-        return b ? translate_byte_reverse<T>(s) : translate_byte_as_is<T>(s);
+        return is_big_endian() ? translate_byte_reverse<T>(s) : translate_byte_as_is<T>(s);
 #endif
     }
 

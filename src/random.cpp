@@ -91,7 +91,7 @@ int random_gen(int argc, char** argv) {
         break;
     }
     if (!ok) {
-        Clog << "error:need more argument\n";
+        Clog << "error:need more arguments\n";
         return -1;
     }
     Cout.stop_out(true);

@@ -58,7 +58,7 @@ int search(int argc, char **argv, int i, bool rnflag) {
         break;
     }
     if (!ok) {
-        Clog << "search: need more argument\n";
+        Clog << "error: need more argument\n";
         return -1;
     }
     HUNICODEDATA data = nullptr;

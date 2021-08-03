@@ -378,7 +378,7 @@ namespace PROJECT_NAME {
             return true;
         }
 
-#elif defined(COMMONLIB2_IS_UNIX_LIKE) 
+#elif defined(COMMONLIB2_IS_UNIX_LIKE)
         int fd = -1;
         long maplen = 0;
 
@@ -618,12 +618,23 @@ namespace PROJECT_NAME {
             close();
         }
 
-        FileReader(FileReader&& in) {
+       private:
+        void move(FileReader&& in) {
             close();
             input = in.input;
             in.input = nullptr;
             map = in.map;
             in.map = nullptr;
+        }
+
+       public:
+        FileReader(FileReader&& in) noexcept {
+            move(std::forward<FileReader>(in));
+        }
+
+        FileReader& operator=(FileReader&& in) {
+            move(std::forward<FileReader>(in));
+            return *this;
         }
 
         template <class C>
