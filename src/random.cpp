@@ -15,8 +15,8 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
         std::u32string idxstr, countstr;
         Reader(std::to_string(seed.size() - 1)) >> idxstr;
         Reader(std::to_string(count)) >> countstr;
-        result += U"max index:" + idxstr + U"\n";
         result += U"count:" + countstr + U"\n";
+        result += U"max index:" + idxstr + U"\n";
     }
 
     for (size_t i = 0; i < count; i++) {
@@ -33,6 +33,7 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
 
     if (index) {
         if (count != 0) {
+            Cout << "sum:" << sum << "\n";
             Cout << "average:" << (double)sum / count << "\n";
         }
     }
