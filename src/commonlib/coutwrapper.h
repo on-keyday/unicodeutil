@@ -219,6 +219,10 @@ namespace PROJECT_NAME {
             ss.str("");
             ss.clear();
         }
+
+        bool is_file() const {
+            return (bool)file;
+        }
     };
 
     inline CinWrapper& cin_wrapper() {

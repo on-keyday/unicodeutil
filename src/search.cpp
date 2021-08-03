@@ -187,7 +187,7 @@ int search(int argc, char **argv, int i, bool rnflag) {
     }
     release_unicodedata(data);
 #ifdef COMMONLIB2_IS_UNIX_LIKE
-    if (!rnflag && onlyraw && noline) {
+    if (!Cout.is_file() && !rnflag && onlyraw && noline) {
         Cout << "\n";
     }
 #endif
