@@ -60,6 +60,8 @@ namespace PROJECT_NAME {
     DEFINE_OPERATOR_RSHIFT_NUM(unsigned short)
     DEFINE_OPERATOR_RSHIFT_NUM(signed int)
     DEFINE_OPERATOR_RSHIFT_NUM(unsigned int)
+    DEFINE_OPERATOR_RSHIFT_NUM(signed long)
+    DEFINE_OPERATOR_RSHIFT_NUM(unsigned long)
     DEFINE_OPERATOR_RSHIFT_NUM(signed long long)
     DEFINE_OPERATOR_RSHIFT_NUM(unsigned long long)
 
