@@ -14,7 +14,8 @@
 #endif
 #if defined(_MSC_VER) && !defined(__clang__) && !defined(__GNUC__)
 #define COMMONLIB2_IS_MSVC
-#elif defined(__linux__) || defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
+#endif
+#if defined(__linux__) || defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
 #define COMMONLIB2_IS_UNIX_LIKE
 #endif
 
