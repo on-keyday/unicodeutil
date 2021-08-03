@@ -9,13 +9,31 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
     std::uniform_int_distribution<std::size_t> dist(0, seed.size() - 1);
 
     std::u32string result;
+    size_t sum;
+
+    if (index) {
+        std::u32string idxstr, countstr;
+        Reader(std::to_string(seed.size() - 1)) >> idxstr;
+        Reader(std::to_string(count)) >> countstr;
+        result += U"max index:" + idxstr + U"\n";
+        result += U"count:" + countstr + U"\n";
+    }
+
     for (size_t i = 0; i < count; i++) {
         size_t idx = dist(engine);
         result += seed[idx];
+
         if (index) {
+            sum += idx;
             std::u32string idxstr;
             Reader(std::to_string(idx)) >> idxstr;
             result += U" :" + idxstr + U"\n";
+        }
+    }
+
+    if (index) {
+        if (count != 0) {
+            Cout << "average:" << (double)sum / count << "\n";
         }
     }
     std::string show;

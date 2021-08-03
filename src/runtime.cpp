@@ -106,7 +106,7 @@ int STDCALL command_argv(int argc, char **argv) {
         usage:random <options> <'search' command's option> <'search' subcommand>
         -c <number>:set length of string
         -d :use device(std::random_device) for generate.
-        -i :show with random index
+        -i :show random with index
         this command wraps 'search' command and option -uqrn is unusable.
 )";
         Clog << helpstr;
