@@ -186,8 +186,8 @@ int search(int argc, char **argv, int i, bool rnflag) {
         Clog << "unsupported command:" << arg << "\n";
     }
     release_unicodedata(data);
-#ifdef __EMSCRIPTEN__
-    if (onlyraw && noline) {
+#ifdef COMMONLIB2_IS_UNIX_LIKE
+    if (!rnflag && onlyraw && noline) {
         Cout << "\n";
     }
 #endif

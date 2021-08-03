@@ -12,8 +12,10 @@
 #else
 #define CONSTEXPRIF
 #endif
-#if defined(_MSC_VER)&&!defined(__clang__)&&!defined(__GNUC__)
+#if defined(_MSC_VER) && !defined(__clang__) && !defined(__GNUC__)
 #define COMMONLIB2_IS_MSVC
+#elif defined(__linux__) || defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
+#define COMMONLIB2_IS_UNIX_LIKE
 #endif
 
 #if __cplusplus > 201703L && __has_include(<concepts>)

@@ -41,6 +41,11 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
     Reader(result) >> show;
 
     Cout << show;
+#ifdef COMMONLIB2_IS_UNIX_LIKE
+    if (!index) {
+        Cout << "\n";
+    }
+#endif
     return 0;
 }
 

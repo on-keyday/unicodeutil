@@ -20,7 +20,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <io.h>
-#elif defined(__linux__) || defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
+#elif defined(COMMONLIB2_IS_UNIX_LIKE)
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -378,7 +378,7 @@ namespace PROJECT_NAME {
             return true;
         }
 
-#elif defined(__linux__) || defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__)
+#elif defined(COMMONLIB2_IS_UNIX_LIKE) 
         int fd = -1;
         long maplen = 0;
 
