@@ -59,6 +59,8 @@ bool get_morearg(std::string &output, int &i, int argc, char **argv);
 
 bool openfile(int &i, int argc, char **argv);
 
-int search(int argc, char **argv);
+int search(int argc, char **argv, int i = 2, bool rnflag = false);
 
 int utfshow(std::string &cmd, int argc, char **argv);
+
+int random_gen(int argc, char **argv);

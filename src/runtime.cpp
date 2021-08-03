@@ -39,6 +39,9 @@ int STDCALL command_argv(int argc, char **argv) {
     else if (cmd == "utf8" || cmd == "utf16" || cmd == "utf32") {
         return utfshow(cmd, argc, argv);
     }
+    else if (cmd == "random") {
+        return random_gen(argc, argv);
+    }
     else if (cmd == "help") {
         const char *helpstr =
             R"(help:
@@ -98,6 +101,12 @@ int STDCALL command_argv(int argc, char **argv) {
            -f <utf8|utf16|utf32>:set <codes> coecs (default:(same as command))
            -h :<codes> are hex which not begin with "0x"
            -s :<codes> are not tokenaized (ex:e897a4)
+    random:
+        generate random string which match conditions
+        usage:random <options> <'search' command's option> <'search' subcommand>
+        -c <number>:set length of string
+        -d :use device(std::random_device) for generate.
+        this command wraps 'search' command that option -uqrn is unusable.
 )";
         Clog << helpstr;
         return 0;

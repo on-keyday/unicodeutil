@@ -8,14 +8,13 @@ bool check_charname(const std::string &str, char *cmp, bool strict) {
     return strict ? (str == cmp) : (str.find(cmp) != ~0);
 }
 
-int search(int argc, char **argv) {
+int search(int argc, char **argv, int i, bool rnflag) {
     bool ok = false;
     bool bin = true;
     bool u8 = false;
     bool quiet = false;
-    bool onlyraw = false;
-    bool noline = false;
-    int i = 2;
+    bool onlyraw = rnflag;
+    bool noline = rnflag;
     std::string infile;
     bool output = false;
     for (; i < argc; i++) {
@@ -46,6 +45,8 @@ int search(int argc, char **argv) {
                         return -1;
                     }
                     output = true;
+                }
+                else if (rnflag && (c == 'c' || c == 'd' || c == 'i')) {
                 }
                 else {
                     Clog << "warning: ignored '" << c << "'\n";

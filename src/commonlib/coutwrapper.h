@@ -43,7 +43,8 @@ namespace PROJECT_NAME {
             }
 #endif
             std::ios_base::sync_with_stdio(sync);
-            std::locale loc(".UTF-8");
+            /*            
+            std::locale loc("");
 #ifdef _WIN32
             std::wcin.imbue(loc);
             std::wcout.imbue(loc);
@@ -54,7 +55,7 @@ namespace PROJECT_NAME {
             std::cout.imbue(loc);
             std::cerr.imbue(loc);
             std::clog.imbue(loc);
-#endif
+#endif*/
             return true;
         }
 

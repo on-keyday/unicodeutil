@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(unicode "src/main.cpp")
 
-add_library(unicoderuntime SHARED "src/runtime.cpp" "src/search.cpp" "src/makebin.cpp" "src/common.cpp" "src/utf.cpp")
+add_library(unicoderuntime SHARED "src/runtime.cpp" "src/search.cpp" "src/random.cpp" "src/makebin.cpp" "src/common.cpp" "src/utf.cpp")
 
 add_library(unicodedata SHARED "src/unicodeload.cpp")
 
