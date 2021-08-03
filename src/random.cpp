@@ -62,7 +62,7 @@ int random_gen(int argc, char** argv) {
                     constexpr size_t maxable = ~0;
                     constexpr size_t max = maxable >> 1;
                     size_t tmpnum = maxable;
-                    Reader(tmp) >> tmpnum;
+                    Reader<std::string>(tmp) >> tmpnum;
                     if (tmpnum > max) {
                         Clog << "error:too large or not number:" << argv[i] << "\n";
                         return -1;
