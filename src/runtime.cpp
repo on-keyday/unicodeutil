@@ -121,7 +121,7 @@ int STDCALL command_argv(int argc, char **argv) {
 
 template <class C>
 int command_str_impl(const C *str) {
-    ArgArray<char, std::string, std::vector> input;
+    ArgArray input;
     std::basic_string<C> in = str;
     auto tmp = split_cmd(in);
     for (auto &o : tmp) {
@@ -182,7 +182,26 @@ int EMSCRIPTEN_KEEPALIVE command_callback(const char *str) {
 #endif
 #endif
 
-/*
-#ifdef _WIN32
-int command_str_wchar(const wchar_t *str) { return command_str_impl(str); }
-#endif*/
+int STDCALL runtime_main(int argc, char **argv) {
+    const char *err = nullptr;
+    if (!IOWrapper::Init(false, &err)) {
+        std::cerr << err;
+        return -1;
+    }
+    ArgChange _(argc, argv);
+    /*ArgArray withpipe;
+    std::string pipein;
+    if (Cin.readsome(pipein) > 0) {
+        withpipe.translate(argv, argv + argc);
+        withpipe.translate(split_cmd(pipein));
+        argv = withpipe.argv(argc);
+    }*/
+    if (argc < 2) {
+        Cout << ">>";
+        Clog << ">>";
+        std::string in;
+        Cin.getline(in);
+        return command_str(in.c_str(), 0);
+    }
+    return command_argv(argc, argv);
+}

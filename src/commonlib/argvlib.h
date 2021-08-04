@@ -15,11 +15,13 @@
 #include <vector>
 namespace PROJECT_NAME {
 
-    template <class C, class String, template <class...> class Vec>
+    template <class C = char, class String = std::string, template <class...> class Vec = std::vector>
     struct ArgArray {
+       private:
         Vec<C *> _argv;
         Vec<String> base;
 
+       public:
         template <class Input>
         void push_back(Input &&str) {
             String out;
@@ -39,6 +41,18 @@ namespace PROJECT_NAME {
             for (auto &&i : vec) {
                 push_back(std::forward<decltype(i)>(i));
             }
+        }
+
+        template <class Input>
+        void translate(Input begin, Input end) {
+            for (auto it = begin; it != end; it++) {
+                push_back(std::forward<decltype(*it)>(*it));
+            }
+        }
+
+        void clear() {
+            base.clear();
+            _argv.clear();
         }
 
         C **argv(int &argc) {
@@ -74,18 +88,8 @@ namespace PROJECT_NAME {
             if (!get_warg(wargc, wargv)) {
                 throw "system is broken";
             }
-            for (auto i = 0; i < wargc; i++) {
-                //String arg;
-                //StrStream(std::wstring_view(wargv[i]))>>u8filter>>arg;
-                base.push_back(wargv[i]);
-            }
+            base.translate(wargv, wargv + wargc);
             LocalFree(wargv);
-            /*for(auto& i:base){
-                u8argv.push_back(i.data());
-            }
-            u8argv.push_back(nullptr);
-            argc=(int)u8argv.size()-1;
-            argv=u8argv.data();*/
             argv = base.argv(argc);
         }
 

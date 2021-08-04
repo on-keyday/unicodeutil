@@ -43,6 +43,8 @@ DLL_EXPORT int STDCALL EMSCRIPTEN_KEEPALIVE start_load();
 DLL_EXPORT int STDCALL command_argv(int argc, char **argv);
 DLL_EXPORT int STDCALL init_io(int sync, const char **err);
 
+DLL_EXPORT int STDCALL runtime_main(int argc, char **argv);
+
 #ifdef __cplusplus
 }
 #endif

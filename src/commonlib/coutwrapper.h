@@ -80,6 +80,11 @@ namespace PROJECT_NAME {
             return true;
 #endif
         }
+
+        /*static std::string& initial_chahe() {
+            static std::string init;
+            return init;
+        }*/
     };
 
     struct CinWrapper : IOWrapper {
@@ -89,6 +94,18 @@ namespace PROJECT_NAME {
 #else
         std::istream& in;
 #endif
+        /*static bool get_initial_impl(std::string& out, bool& res) {
+            out = std::move(initial_chahe());
+            res = out.size() != 0;
+            return true;
+        }
+
+        static bool get_initial(std::string& out) {
+            bool res = false;
+            static bool init = get_initial_impl(out, res);
+            return res;
+        }*/
+
        public:
         using char_type = typename std::remove_reference_t<decltype(in)>::char_type;
 
@@ -116,6 +133,10 @@ namespace PROJECT_NAME {
 
         CinWrapper& getline(std::string& out) {
             if (!Able_continue()) throw std::runtime_error("not called IOWrapper::Init() before io function");
+
+                /*if (get_initial(out)) {
+                return *this;
+            }*/
 #ifdef _WIN32
             std::basic_string<char_type> tmp;
             std::getline(in, tmp);
@@ -124,6 +145,34 @@ namespace PROJECT_NAME {
             std::getline(in, out);
 #endif
             return *this;
+        }
+
+        size_t readsome(std::string& out) {
+            if (!Able_continue()) throw std::runtime_error("not called IOWrapper::Init() before io function");
+            size_t ret = 0;
+            /*if (get_initial(out)) {
+                return out.size();
+            }*/
+
+            while (in.rdbuf()->in_avail() > 0) {
+#ifdef _WIN32
+                wchar_t str[100] = {0};
+#else
+                char str[100] = {0};
+#endif
+                auto red = in.readsome(str, 100);
+                if (red > 0) {
+#ifdef _WIN32
+                    std::string tmp;
+                    Reader(Sized(str, red)) >> tmp;
+                    out += tmp;
+#else
+                    out += std::string(str, red);
+#endif
+                    ret += red;
+                }
+            }
+            return ret;
         }
     };
 

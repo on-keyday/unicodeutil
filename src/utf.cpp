@@ -71,7 +71,7 @@ void outputword(std::string& cmd, int& i, int argc, char** argv, FormatFlags& fl
     print_line();
 }
 
-bool change_nospacenumber(ArgArray<char, std::string, std::vector>& arg, std::string& from, int& i,
+bool change_nospacenumber(ArgArray<>& arg, std::string& from, int& i,
                           int& argc, char**& argv) {
     std::string nospacenumber, result;
     for (; i < argc; i++) {
@@ -151,7 +151,7 @@ int show_code(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flag
     if (!from.size()) {
         from = cmd;
     }
-    ArgArray<char, std::string, std::vector> arg;
+    ArgArray arg;
     if (nospace) {
         if (!change_nospacenumber(arg, from, i, argc, argv)) {
             return false;
