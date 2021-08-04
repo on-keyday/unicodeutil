@@ -164,7 +164,7 @@ int show_code(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flag
             s += argv[i];
             Reader(s) >> code;
             if (code > 0xff) {
-                Clog << "error:too large or not number: " << argv[0] << "\n";
+                Clog << "error:too large or not number: " << argv[i] << "\n";
                 return -1;
             }
             u8str.push_back((unsigned char)code);
@@ -186,7 +186,7 @@ int show_code(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flag
             s += argv[i];
             Reader(s) >> code;
             if (code > 0xffff) {
-                Clog << "error:too large or not number: " << argv[0] << "\n";
+                Clog << "error:too large or not number: " << argv[i] << "\n";
                 return -1;
             }
             u16str.push_back(code);
@@ -207,7 +207,7 @@ int show_code(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flag
             s += argv[i];
             Reader(s) >> code;
             if (code > 0x10ffff) {
-                Clog << "error:too large or not number: " << argv[0] << "\n";
+                Clog << "error:too large or not number: " << argv[i] << "\n";
                 return -1;
             }
             converted.push_back(code);
@@ -217,6 +217,28 @@ int show_code(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flag
         Clog << "error:invalid UTF name:" << from << "\n";
         return -1;
     }
+    if (flags.raw) {
+        std::string tmp;
+        Reader(converted) >> tmp;
+        Cout << tmp;
+    }
+    else {
+        print_as_command(converted, cmd, flags);
+    }
+    return 0;
+}
+
+int show_range(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flags) {
+    std::u32string converted;
+    for (; i < argc; i++) {
+        uint32_t begin, end;
+        if (get_range(argv[i], begin, end)) {
+            for (auto k = begin; k <= end; k++) {
+                converted.push_back(k);
+            }
+        }
+    }
+
     if (flags.raw) {
         std::string tmp;
         Reader(converted) >> tmp;
@@ -270,7 +292,10 @@ int utfshow(std::string& cmd, int argc, char** argv) {
         outputword(cmd, i, argc, argv, flags);
     }
     else if (arg == "code") {
-        show_code(cmd, i, argc, argv, flags);
+        return show_code(cmd, i, argc, argv, flags);
+    }
+    else if (arg == "range") {
+        return show_range(cmd, i, argc, argv, flags);
     }
     else {
         Clog << "unsurpported command: " << arg;

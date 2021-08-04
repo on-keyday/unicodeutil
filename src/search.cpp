@@ -46,7 +46,7 @@ int search(int argc, char **argv, int i, bool rnflag) {
                     }
                     output = true;
                 }
-                else if (rnflag && (c == 'c' || c == 'd' || c == 'i')) {
+                else if (rnflag && (c == 'c' || c == 'd' || c == 'i' || c == 's')) {
                 }
                 else {
                     Clog << "warning: ignored '" << c << "'\n";
@@ -151,18 +151,21 @@ int search(int argc, char **argv, int i, bool rnflag) {
         }
     }
     else if (arg == "logic") {
-        Logic logic;
-        if (!logic_parse(i, argc, argv, logic)) {
-            release_unicodedata(data);
-            return -1;
-        }
-        for (auto k = 0; k < 0x110000; k++) {
-            CODEINFO info = nullptr;
-            if (get_codeinfo(data, k, &info)) {
-                if (logic(k, get_charname(info), get_category(info))) {
-                    print_out(info);
+        while (i < argc) {
+            Logic logic;
+            if (!logic_parse(i, argc, argv, logic)) {
+                release_unicodedata(data);
+                return -1;
+            }
+            i++;
+            for (auto k = 0; k < 0x110000; k++) {
+                CODEINFO info = nullptr;
+                if (get_codeinfo(data, k, &info)) {
+                    if (logic(k, get_charname(info), get_category(info))) {
+                        print_out(info);
+                    }
+                    clean_codeinfo(&info);
                 }
-                clean_codeinfo(&info);
             }
         }
     }

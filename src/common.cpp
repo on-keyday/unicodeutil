@@ -102,7 +102,7 @@ bool get_range(const char *str, uint32_t &begin, uint32_t &end, const char *msg)
     else {
         f >> end;
     }
-    if (begin == ~0 || end == ~0) {
+    if (begin == ~0 || end == ~0 || end > 0x10ffff) {
         Clog << msg
              << ": syntax of range is invalid: <code begin>-<code end> "
                 "[begin:end]\n";
@@ -114,7 +114,7 @@ bool get_range(const char *str, uint32_t &begin, uint32_t &end, const char *msg)
 bool get_code(const char *str, uint32_t &code, const char *msg) {
     code = ~0;
     Reader(str) >> code;
-    if (code == ~0) {
+    if (code == ~0 || code > 0x10ffff) {
         Clog << msg << ": " << str << " is not parseable as number\n";
         return false;
     }

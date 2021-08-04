@@ -1,3 +1,4 @@
+#include <array>
 #include <random>
 
 #include "common.h"
@@ -9,7 +10,7 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
     std::uniform_int_distribution<std::size_t> dist(0, seed.size() - 1);
 
     std::u32string result;
-    size_t sum;
+    size_t sum = 0;
 
     if (index) {
         std::u32string idxstr, countstr;
@@ -49,9 +50,18 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
     return 0;
 }
 
+void gen_random_seeds(std::vector<unsigned int>& seed_data) {
+    seed_data.resize(std::mt19937_64::state_size);
+    std::random_device seed_gen;
+    std::generate(seed_data.begin(), seed_data.end(), std::ref(seed_gen));
+}
+
 int random_gen(int argc, char** argv) {
     int i = 2;
     size_t count = 10;
+    size_t seedv = 0;
+    std::vector<unsigned int> seeds;
+    bool has_seed = false;
     bool device = false;
     bool index = false;
     bool ok = false;
@@ -79,6 +89,29 @@ int random_gen(int argc, char** argv) {
                 }
                 else if (s == 'i') {
                     index = true;
+                }
+                else if (s == 's') {
+                    std::string tmp;
+                    if (!get_morearg(tmp, i, argc, argv)) {
+                        return -1;
+                    }
+                    if (tmp == "time") {
+                        seedv = time(NULL);
+                        has_seed = true;
+                    }
+                    else if (tmp == "random") {
+                        gen_random_seeds(seeds);
+                        has_seed = true;
+                    }
+                    else {
+                        if (!is_digit(tmp[0])) {
+                            Clog << "warning:expect number but not\n";
+                        }
+                        else {
+                            Reader(tmp) >> seedv;
+                            has_seed = true;
+                        }
+                    }
                 }
                 else {
                     broken = true;
@@ -114,6 +147,15 @@ int random_gen(int argc, char** argv) {
     }
     else {
         std::mt19937_64 engine;
+        if (has_seed) {
+            if (seeds.size()) {
+                std::seed_seq sq(seeds.begin(), seeds.end());
+                engine.seed(sq);
+            }
+            else {
+                engine.seed(seedv);
+            }
+        }
         return gen_randomstring(count, seed, engine, index);
     }
 }
