@@ -53,6 +53,12 @@ void print_as_command(const C& str, std::string& cmd, FormatFlags& flags) {
     }
 }
 
+void print_line() {
+#ifdef COMMONLIB2_IS_UNIX_LIKE
+    Cout << "\n";
+#endif
+}
+
 void outputword(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flags) {
     for (; i < argc; i++) {
         if (flags.raw) {
@@ -62,6 +68,7 @@ void outputword(std::string& cmd, int& i, int argc, char** argv, FormatFlags& fl
             print_as_command(argv[i], cmd, flags);
         }
     }
+    print_line();
 }
 
 bool change_nospacenumber(ArgArray<char, std::string, std::vector>& arg, std::string& from, int& i,
@@ -225,6 +232,7 @@ int show_code(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flag
     else {
         print_as_command(converted, cmd, flags);
     }
+    print_line();
     return 0;
 }
 
@@ -247,6 +255,7 @@ int show_range(std::string& cmd, int& i, int argc, char** argv, FormatFlags& fla
     else {
         print_as_command(converted, cmd, flags);
     }
+    print_line();
     return 0;
 }
 
