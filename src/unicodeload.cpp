@@ -8,11 +8,10 @@
 #include <iostream>
 using namespace commonlib2;
 
-#ifdef __EMSCRIPTEN__
-#define USE_BUILTIN_BINARY 0
-#else
+#ifndef USE_BUILTIN_BINARY
 #define USE_BUILTIN_BINARY 0
 #endif
+
 struct CODEINFO_impl {
     CodeInfo *base = nullptr;
     char32_t real = ~0;

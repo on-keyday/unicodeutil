@@ -1,5 +1,2 @@
 #!/bin/bash
-rm -fr CMakeFiles/ 
-rm -f build.ninja
-rm -f cmake_install.cmake
-rm -f CMakeCache.txt
+ninja clean
