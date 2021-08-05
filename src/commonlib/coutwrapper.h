@@ -29,7 +29,7 @@ namespace PROJECT_NAME {
             if (Flag()) return true;
             Flag() = true;
 #ifdef _WIN32
-            if (_setmode(_fileno(stdin), _O_U16TEXT) == -1) {
+            if (_setmode(_fileno(stdin), _O_U8TEXT) == -1) {
                 err = "error:text input mode change failed";
                 return false;
             }
