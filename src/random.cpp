@@ -6,12 +6,25 @@
 using namespace commonlib2;
 
 template <class Engine>
-int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool index) {
+int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool index, bool noadjacent) {
     std::uniform_int_distribution<std::size_t> dist(0, seed.size() - 1);
 
     std::u32string result;
     size_t sum = 0;
 
+    if (noadjacent) {
+        bool ok = false;
+        for (auto&& test : seed) {
+            if (seed[0] != test) {
+                ok = true;
+                break;
+            }
+        }
+        if (!ok) {
+            Clog << "error:-l falg is true but every character is same\n";
+            return -1;
+        }
+    }
     if (index) {
         std::u32string idxstr, countstr;
         Reader(std::to_string(seed.size() - 1)) >> idxstr;
@@ -22,6 +35,12 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
 
     for (size_t i = 0; i < count; i++) {
         size_t idx = dist(engine);
+        if (noadjacent) {
+            if (result.size() && result.back() == seed[idx]) {
+                i--;
+                continue;
+            }
+        }
         result += seed[idx];
 
         if (index) {
@@ -64,6 +83,7 @@ int random_gen(int argc, char** argv) {
     bool has_seed = false;
     bool device = false;
     bool index = false;
+    bool noadjacent = false;
     bool ok = false;
     for (; i < argc; i++) {
         if (argv[i][0] == '-') {
@@ -113,6 +133,9 @@ int random_gen(int argc, char** argv) {
                         }
                     }
                 }
+                else if (s == 'l') {
+                    noadjacent = true;
+                }
                 else {
                     broken = true;
                     break;
@@ -143,7 +166,7 @@ int random_gen(int argc, char** argv) {
     Reader(result) >> seed;
     if (device) {
         std::random_device engine;
-        return gen_randomstring(count, seed, engine, index);
+        return gen_randomstring(count, seed, engine, index, noadjacent);
     }
     else {
         std::mt19937_64 engine;
@@ -156,6 +179,6 @@ int random_gen(int argc, char** argv) {
                 engine.seed(seedv);
             }
         }
-        return gen_randomstring(count, seed, engine, index);
+        return gen_randomstring(count, seed, engine, index, noadjacent);
     }
 }

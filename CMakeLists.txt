@@ -15,6 +15,8 @@ target_link_libraries(unicode unicoderuntime)
 
 target_link_libraries(unicoderuntime unicodedata)
 
+target_compile_options(unicodedata PRIVATE "-DUSE_BUILTIN_BINARY=$ENV{BUILTIN_BINARY}")
+
 if(MSVC)
 target_compile_options(unicodedata PUBLIC /EHsc /source-charset:utf-8 /Zc:__cplusplus)
 target_compile_options(unicode PUBLIC /EHsc /source-charset:utf-8 /Zc:__cplusplus)

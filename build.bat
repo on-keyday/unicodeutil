@@ -1,5 +1,6 @@
 @echo off
 setlocal
+set BUILTIN_BINARY=1
 set CLANG=true
 set BUILD_TYPE=Release
 if "%CLANG%"=="true" (

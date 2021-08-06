@@ -46,7 +46,7 @@ int search(int argc, char **argv, int i, bool rnflag) {
                     }
                     output = true;
                 }
-                else if (rnflag && (c == 'c' || c == 'd' || c == 'i' || c == 's')) {
+                else if (rnflag && (c == 'c' || c == 'd' || c == 'i' || c == 's' || c == 'l')) {
                 }
                 else {
                     Clog << "warning: ignored '" << c << "'\n";

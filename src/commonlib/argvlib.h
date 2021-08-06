@@ -36,6 +36,17 @@ namespace PROJECT_NAME {
             base.push_back(std::move(out));
         }
 
+        template <class T>
+        void push_back(const T *str) {
+            String out;
+            Reader(str) >> out;
+            base.push_back(std::move(out));
+        }
+
+        void pop_back() {
+            base.pop_back();
+        }
+
         template <class Input>
         void translate(Input &&vec) {
             for (auto &&i : vec) {

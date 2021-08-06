@@ -93,7 +93,7 @@ namespace PROJECT_NAME {
         using Char = remove_cv_ref<decltype(buf[0])>;
 
        public:
-        using IgnoreHandler = bool (*)(Buf&, size_t&, size_t bufsize);
+        using IgnoreHandler = bool (*)(RBuf&, size_t&, size_t bufsize);
         using not_expect_default = bool (*)(Char);
         using cmp_default = bool (*)(Char, Char);
 
