@@ -113,16 +113,21 @@ namespace PROJECT_NAME {
                 ss << in;
                 return *this;
             }
-
-            if (!Able_continue()) throw std::runtime_error("not called IOWrapper::Init() before io function");
             ss.str("");
             ss << in;
+            if (fout != base) {
+                std::string tmp = ss.str();
+                fwrite(tmp.c_str(), 1, tmp.size(), fout);
+                return *this;
+            }
+            if (!Able_continue()) throw std::runtime_error("not called IOWrapper::Init() before io function");
 #ifdef _WIN32
             std::wstring tmp;
 #else
             std::string tmp;
 #endif
             Reader(ss.str()) >> tmp;
+
             fwrite(tmp.c_str(), sizeof(tmp[0]), tmp.size(), fout);
             return *this;
         }
