@@ -81,7 +81,7 @@ namespace PROJECT_NAME {
     }
 
     template <class C, class Token, class Buf = std::basic_string<C>, class Vec = std::vector<Buf>>
-    Vec split(const C* str, const Token& token, size_t n = (size_t)-1, bool needafter = true) {
+    Vec split(C* str, const Token& token, size_t n = (size_t)-1, bool needafter = true) {
         return split<Buf, Token, Vec>(Buf(str), token, n);
     }
 
@@ -112,8 +112,8 @@ namespace PROJECT_NAME {
         return split_cmd<Str, Refer<const Str>, Vec>(r, n, line);
     }
 
-    template <class C, class Buf = std::basic_string<C>, class Vec = std::vector<Buf>>
-    Vec split_cmd(const C* str, size_t n = (size_t)-1, bool line = false) {
+    template <class C, class Buf = std::basic_string<std::remove_cv_t<C>>, class Vec = std::vector<Buf>>
+    Vec split_cmd(C* str, size_t n = (size_t)-1, bool line = false) {
         return split_cmd<Buf, Vec>(Buf(str), n, line);
     }
 

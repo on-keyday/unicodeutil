@@ -8,8 +8,8 @@
 using namespace commonlib2;
 
 auto &Cin = cin_wrapper();
-auto &Cout = cout_wrapper();
-auto &Clog = cerr_wrapper();
+auto &Cout = stdout_wrapper();
+auto &Clog = stderr_wrapper();
 
 int init_io_detail(bool sync = false, const char **err = nullptr) {
     if (!IOWrapper::Initialized()) {

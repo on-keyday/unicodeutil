@@ -5,6 +5,9 @@
 */
 
 #pragma once
+#include <fileio.h>
+#include <stdio.h>
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -85,6 +88,97 @@ namespace PROJECT_NAME {
             static std::string init;
             return init;
         }*/
+    };
+
+    //this is maybe faster than cin wrapper
+    struct StdInWrapper : IOWrapper {
+        //unimplemented
+    };
+
+    //this is maybe faster than coutwrapper
+    struct StdOutWrapper : IOWrapper {
+       private:
+        FILE* fout = nullptr;
+        FILE* base = nullptr;
+        std::ostringstream ss;
+        bool onlybuffer;
+
+       public:
+        StdOutWrapper(FILE* fp)
+            : fout(fp), base(fp) {
+        }
+        template <class T>
+        StdOutWrapper& operator<<(const T& in) {
+            if (onlybuffer) {
+                ss << in;
+                return *this;
+            }
+
+            if (!Able_continue()) throw std::runtime_error("not called IOWrapper::Init() before io function");
+            ss.str("");
+            ss << in;
+#ifdef _WIN32
+            std::wstring tmp;
+#else
+            std::string tmp;
+#endif
+            Reader(ss.str()) >> tmp;
+            fwrite(tmp.c_str(), sizeof(tmp[0]), tmp.size(), fout);
+            return *this;
+        }
+
+       private:
+        bool open_detail(FILE** pfp, const char* filename) {
+            fopen_s(pfp, filename, "w");
+            return *pfp != nullptr;
+        }
+#ifdef _WIN32
+        bool open_detail(FILE** pfp, const wchar_t* filename) {
+            _wfopen_s(pfp, filename, L"w");
+            return *pfp != nullptr;
+        }
+#endif
+       public:
+        template <class T>
+        bool open(T& t) {
+            return open(t.c_str());
+        }
+
+        template <class C>
+        bool open(C* name) {
+            FILE* tmp = nullptr;
+            if (open_detail(&tmp, name)) {
+                if (fout != base) {
+                    fclose(fout);
+                }
+                fout = tmp;
+                return true;
+            }
+            return false;
+        }
+
+        bool stop_out(bool stop) {
+            auto ret = onlybuffer;
+            onlybuffer = stop;
+            return ret;
+        }
+
+        bool stop_out() {
+            return onlybuffer;
+        }
+
+        std::string buf_str() {
+            return ss.str();
+        }
+
+        void reset_buf() {
+            ss.str("");
+            ss.clear();
+        }
+
+        bool is_file() {
+            return fout != base;
+        }
     };
 
     struct CinWrapper : IOWrapper {
@@ -308,6 +402,16 @@ namespace PROJECT_NAME {
         static CoutWrapper Clog(std::clog);
 #endif
         return Clog;
+    }
+
+    inline StdOutWrapper& stdout_wrapper() {
+        static StdOutWrapper StdOut(stdout);
+        return StdOut;
+    }
+
+    inline StdOutWrapper& stderr_wrapper() {
+        static StdOutWrapper StdErr(stderr);
+        return StdErr;
     }
 
 }  // namespace PROJECT_NAME

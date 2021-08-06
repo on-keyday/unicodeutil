@@ -16,8 +16,8 @@
 #ifdef __cplusplus
 #include <coutwrapper.h>
 DLL_EXPORT extern commonlib2::CinWrapper &Cin;
-DLL_EXPORT extern commonlib2::CoutWrapper &Cout;
-DLL_EXPORT extern commonlib2::CoutWrapper &Clog;
+DLL_EXPORT extern commonlib2::StdOutWrapper &Cout;
+DLL_EXPORT extern commonlib2::StdOutWrapper &Clog;
 #endif
 
 #define USE_CALLBACK 0
