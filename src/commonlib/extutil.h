@@ -15,8 +15,8 @@
 
 namespace PROJECT_NAME {
 
-    template <class Buf, class To>
-    void getline(Reader<Buf>& r, To& s, bool ext = true) {
+    template <class Buf, class Str>
+    void getline(Reader<Buf>& r, Str& s, bool ext = true) {
         r >> +[](b_char_type<Str> c) { return c != '\r' && c != '\n'; } >> s;
         if (r.expect("\r\n")) {
             if (ext) {
