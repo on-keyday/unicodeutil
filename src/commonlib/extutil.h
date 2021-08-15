@@ -15,29 +15,39 @@
 
 namespace PROJECT_NAME {
 
+    template <class Buf, class To>
+    void getline(Reader<Buf>& r, To& s, bool ext = true) {
+        r >> +[](b_char_type<Str> c) { return c != '\r' && c != '\n'; } >> s;
+        if (r.expect("\r\n")) {
+            if (ext) {
+                s.push_back('\r');
+                s.push_back('\n');
+            }
+        }
+        else if (r.expect("\r")) {
+            if (ext) {
+                s.push_back('\r');
+            }
+        }
+        else if (r.expect("\n")) {
+            if (ext) {
+                s.push_back('\n');
+            }
+        }
+    }
+
+    template <class Str = std::string, class Buf>
+    Str getline(Reader<Buf>& r, bool ext = true) {
+        Str ret;
+        getline(r, ret, ext);
+        return ret;
+    }
+
     template <class Str = std::string, class Buf, class Vec = std::vector<Str>>
     Vec lines(Reader<Buf>& r, bool ext = true) {
         Vec ret;
         while (!r.ceof()) {
-            Str s;
-            r >> +[](b_char_type<Str> c) { return c != '\r' && c != '\n'; } >> s;
-            if (r.expect("\r\n")) {
-                if (ext) {
-                    s.push_back('\r');
-                    s.push_back('\n');
-                }
-            }
-            else if (r.expect("\r")) {
-                if (ext) {
-                    s.push_back('\r');
-                }
-            }
-            else if (r.expect("\n")) {
-                if (ext) {
-                    s.push_back('\n');
-                }
-            }
-            ret.push_back(std::move(s));
+            ret.push_back(getline(r, ext));
         }
         return ret;
     }

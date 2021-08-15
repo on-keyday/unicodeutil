@@ -19,6 +19,7 @@ namespace PROJECT_NAME {
     template <class T>
     T translate_byte_as_is(const char* s) {
         T res = T();
+        res.~T();
         char* res_p = (char*)&res;
         for (auto i = 0u; i < sizeof(T); i++) {
             res_p[i] = s[i];
@@ -29,6 +30,7 @@ namespace PROJECT_NAME {
     template <class T>
     T translate_byte_reverse(const char* s) {
         T res = T();
+        res.~T();
         char* res_p = (char*)&res;
         auto k = 0ull;
         for (auto i = sizeof(T) - 1;; i--) {

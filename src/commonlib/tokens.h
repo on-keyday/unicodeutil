@@ -104,16 +104,6 @@ namespace PROJECT_NAME {
         std::vector<Tokens> token;
         std::vector<std::string> banlist;
 
-        void make_banlist() {
-            for (auto& toks : token) {
-                if (any(toks.flag & TokenBehavior::identifier)) {
-                    for (auto& tok : toks.token) {
-                        banlist.push_back(tok.token);
-                    }
-                }
-            }
-        }
-
        public:
         std::vector<Tokens>& get() {
             return token;
@@ -123,9 +113,19 @@ namespace PROJECT_NAME {
             return banlist;
         }
 
+        void make_banlist() {
+            banlist.clear();
+            for (auto& toks : token) {
+                if (any(toks.flag & TokenBehavior::identifier)) {
+                    for (auto& tok : toks.token) {
+                        banlist.push_back(tok.token);
+                    }
+                }
+            }
+        }
+
         TokenHierarchy(std::initializer_list<Tokens> tok) {
             token = tok;
-            make_banlist();
         }
 
         bool set(size_t pos, TokenBehavior flag) {
@@ -290,6 +290,15 @@ namespace PROJECT_NAME {
                 }
             }
             return false;
+        }
+
+        template <class T, class U>
+        Token* get_token(T pos, U idx) {
+            size_t pos_ = (size_t)pos;
+            size_t idx_ = (size_t)idx;
+            if (pos_ >= tokenbase.get().size()) return nullptr;
+            if (idx_ >= tokenbase.get()[pos_].token.size()) return nullptr;
+            return &tokenbase.get()[pos_].token[idx_];
         }
     };
 

@@ -24,6 +24,8 @@ namespace PROJECT_NAME {
         using RBuf = std::remove_reference_t<Buf>;
 
        public:
+        Serializer() {}
+
         Serializer(RBuf& in)
             : serialized(in) {}
 
@@ -110,6 +112,8 @@ namespace PROJECT_NAME {
         Reader<Buf> r;
 
        public:
+        Deserializer(){}
+
         Deserializer(RBuf& in)
             : r(in) {}
 
