@@ -16,7 +16,7 @@
 namespace PROJECT_NAME {
 
     template <class Buf, class Str>
-    void getline(Reader<Buf>& r, Str& s, bool ext = true) {
+    void getline(Reader<Buf>& r, Str& s, bool ext = true, bool* notext = nullptr) {
         r >> +[](b_char_type<Str> c) { return c != '\r' && c != '\n'; } >> s;
         if (r.expect("\r\n")) {
             if (ext) {
@@ -34,12 +34,17 @@ namespace PROJECT_NAME {
                 s.push_back('\n');
             }
         }
+        else {
+            if (notext) {
+                *notext = true;
+            }
+        }
     }
 
     template <class Str = std::string, class Buf>
-    Str getline(Reader<Buf>& r, bool ext = true) {
+    Str getline(Reader<Buf>& r, bool ext = true, bool* notext = nullptr) {
         Str ret;
-        getline(r, ret, ext);
+        getline(r, ret, ext, notext);
         return ret;
     }
 
