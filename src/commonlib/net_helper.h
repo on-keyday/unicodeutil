@@ -292,7 +292,7 @@ namespace PROJECT_NAME {
             }
             return ~0;
         };
-        Reader<Buf> tmp;
+        Reader<Ret> tmp;
         self->readwhile(tmp.ref(), addifmatch, [&ctx](char c) { return is_alpha_or_num(c) || ctx->c62 == c || ctx->c63 == c || c == '='; });
         if (ctx->strict) {
             if (tmp.readable() != firstsize) return true;
@@ -373,6 +373,7 @@ namespace PROJECT_NAME {
             auto second = 0;
             self->increment();
             first = self->achar();
+            self->increment();
             second = self->achar();
             auto translate = [](unsigned char c) -> unsigned char {
                 if (c >= '0' && c <= '9') {
@@ -418,12 +419,11 @@ namespace PROJECT_NAME {
                 auto prev = result.size();
                 result.resize(result.size() + size);
                 while (r.read_byte(result.data() + prev, size, translate_byte_as_is, true) < size) {
-                    if (r.eof()) break;
+                    r.offset(1);
                     r.ref().reading();
                 }
                 while (!r.expect("\r\n")) {
-                    if (r.eof()) break;
-                    r.ref().reading();
+                    if(r.readable()<2)r.ref().reading();
                 }
             }
         }
@@ -436,7 +436,7 @@ namespace PROJECT_NAME {
                 r.ref().reading();
             }
         }
-        else if (f = data.find("content-type"); f != data.end() && f->second.find("json")) {
+        else if (f = data.find("content-type"); f != data.end() && f->second.find("json")!=~0) {
             size_t first = r.readpos();
             const char* err;
             do {
@@ -449,6 +449,9 @@ namespace PROJECT_NAME {
             r.read_byte(result.data(), last - first);
         }
         else {
+            if(r.readpos()+1==r.ref().size()){
+                return;
+            }
             r >> result;
         }
         data.emplace(":body", std::move(result));
@@ -468,32 +471,161 @@ namespace PROJECT_NAME {
         return true;
     }
 
+    template<class Buf,class Str = std::string,class Map>
+    bool  parse_httprequest(Reader<Buf>& r,Map& ret,bool ignore_body=false) {
+        auto status = split(getline(r, false), " ");
+        if (status.size() < 2) return false;
+        ret.emplace(":method", status[0]);
+        ret.emplace(":path", status[1]);
+        if(!parse_httpheader<Str>(r,ret))return false;
+        if(!ignore_body){
+            parse_httpbody<Str>(ret, r);
+        }
+        return true;
+    }
+
     template <class Buf, class Str = std::string, template <class...> class Map = std::multimap>
     auto parse_httprequest(Reader<Buf>& r,bool ignore_body=false) {
         Map<Str, Str> ret;
-        auto status = split(getline(r, false), " ");
-        if (status.size() < 2) return ret;
-        ret.emplace(":method", status[0]);
-        ret.emplace(":path", status[1]);
-        if(!parse_httpheader<Str>(r,ret))return decltype(ret)();
-        if(!ignore_body){
-            parse_httpbody(ret, r);
+        if(!parse_httprequest(r,ret,ignore_body)){
+            return decltype(ret)();
         }
         return ret;
+    }
+
+    template<class Buf,class Str = std::string,class Map>
+    bool  parse_httpresponse(Reader<Buf>& r,Map& ret,bool ignore_body=false) {
+        auto status = split(getline(r, false), " ");
+        if (status.size() < 3) return false;
+        ret.emplace(":status", status[1]);
+        std::string phrase=status[2];
+        for(auto i=3;i<status.size();i++){
+            phrase+=" "+status[i];
+        }
+        ret.emplace(":phrase", phrase);
+        if(!parse_httpheader<Str>(r,ret))return false;
+        if(!ignore_body){
+            parse_httpbody<Str>(ret, r);
+        }
+        return true;
     }
 
     template <class Buf, class Str = std::string, template <class...> class Map = std::multimap>
     auto parse_httpresponse(Reader<Buf>& r,bool ignore_body=false) {
         Map<Str, Str> ret;
-        auto status = split(getline(r, false), " ");
-        if (status.size() < 3) return ret;
-        ret.emplace(":status", status[1]);
-        ret.emplace(":phrase", status[2]);
-        if(!parse_httpheader<Str>(r,ret))return decltype(ret)();
-        if(!ignore_body){
-            parse_httpbody(ret, r);
+        if(!parse_httpresponse(r,ret,ignore_body)){
+            return decltype(ret)();
         }
         return ret;
+    }
+
+    struct SHA1Context{
+        unsigned int h[5]={0x67452301,0xEFCDAB89,0x98BADCFE,0x10325476,0xC3D2E1F0};
+        unsigned char result[sizeof(h)]={0};
+        unsigned long long total=0;
+        bool intotal=false;
+
+        void calc(const char* bits){
+             auto rol=[](unsigned int word,auto shift){
+                return (word<<shift)|(word>>(sizeof(word)*8-shift));
+            };
+            unsigned int w[80]={0};
+            unsigned int a=h[0],b=h[1],c=h[2],d=h[3],e=h[4];
+            for(auto i=0;i<80;i++){
+                if(i<16){
+                    w[i]=translate_byte_net_and_host<unsigned int>(&bits[i*4]);
+                }
+                else{
+                    w[i]=rol(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16],1);   
+                }
+                unsigned int f=0,k=0;
+                if(i<=19){
+                    f=(b & c) | ((~b) & d);
+                    k=0x5A827999;
+                }
+                else if(i<=39){
+                    f = b ^ c ^ d;
+                    k = 0x6ED9EBA1;
+                }
+                else if(i<=59){
+                    f=(b & c) | (b & d) | (c & d);
+                    k=0x8F1BBCDC;
+                }
+                else{
+                    f = b ^ c ^ d;
+                    k = 0xCA62C1D6;
+                }
+                unsigned int tmp=rol(a,5)+f+e+k+w[i];
+                e=d;
+                d=c;
+                c=rol(b,30);
+                b=a;
+                a=tmp;
+            }
+            h[0]+=a;
+            h[1]+=b;
+            h[2]+=c;
+            h[3]+=d;
+            h[4]+=e;
+        }
+    };
+
+
+
+
+    template<class Buf>
+    bool sha1(Reader<Buf>* r,SHA1Context& ctx,bool begin){
+         if(begin){
+            constexpr unsigned int init[]={0x67452301,0xEFCDAB89,0x98BADCFE,0x10325476,0xC3D2E1F0};
+            ctx.h[0]=init[0];
+            ctx.h[1]=init[1];
+            ctx.h[2]=init[2];
+            ctx.h[3]=init[3];
+            ctx.h[4]=init[4];
+            ctx.total=0;
+            ctx.intotal=false;
+        }
+        union{
+            char bits[64]={0};
+            unsigned long long ints[8];
+        }c;
+        if(!r){
+            if (!ctx.intotal) {
+                c.ints[7] = translate_byte_net_and_host<unsigned long long>((char*)&ctx.total);
+                ctx.calc(c.bits);
+                ctx.intotal = true;
+            }
+            int count=0;
+            for(auto& i:ctx.h){
+                unsigned int be=translate_byte_net_and_host<unsigned int>((char*)&i);
+                for(auto k=0;k<4;k++){
+                    ctx.result[count]=reinterpret_cast<char*>(&be)[k];
+                    count++;
+                }
+            }
+            return true;
+        }
+        size_t sz=0;
+        sz=r->read_byte(c.bits,64);
+        ctx.total+=sz*8;
+        if(sz<64){
+            c.bits[sz]=0x80;
+            ctx.intotal=true;
+            if(sz<56){
+                c.ints[7]=translate_byte_net_and_host<unsigned long long>((char*)&ctx.total);
+                ctx.calc(c.bits);
+            }
+            else{
+                ctx.calc(c.bits);
+                memset(c.bits,0,64);
+                c.ints[7]=translate_byte_net_and_host<unsigned long long>((char*)&ctx.total);
+                ctx.calc(c.bits);
+            }
+        }
+        else{
+            ctx.calc(c.bits);
+        }
+        return begin;
     }
 
 }  // namespace PROJECT_NAME
