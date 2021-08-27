@@ -104,13 +104,13 @@ int search(int argc, char **argv, int i, bool rnflag) {
             }
         }
     }
-    else if (arg == "block") {
+    else if (arg == "block" || arg == "include") {
         for (; i < argc; i++) {
             for (auto k = 0; k < 0x110000; k++) {
                 CODEINFO info = nullptr;
                 if (get_codeinfo(data, k, &info)) {
                     std::string str(get_block(info));
-                    if (str==argv[i]) {
+                    if (check_charname(str, argv[i], arg[0] == 'i')) {
                         print_out(info);
                     }
                     clean_codeinfo(&info);

@@ -17,6 +17,7 @@ enum class LogicType {
     code,
     category,
     block,
+    includes,
 };
 
 struct Logic {
@@ -46,6 +47,8 @@ struct Logic {
                 return std::string(category).find(str) != ~0;
             case LogicType::block:
                 return str == block;
+            case LogicType::includes:
+                return std::string(block).find(str) != ~0;
         }
     }
 };

@@ -158,10 +158,11 @@ bool logic_parse(int &i, int argc, char **argv, Logic &logic) {
             }
             logic.type = LogicType::range;
         }
-        else if (arg[0] == 'n' || arg[0] == 's' || arg[0] == 'k' || arg[0] == 'b') {
+        else if (arg[0] == 'n' || arg[0] == 's' || arg[0] == 'k' || arg[0] == 'b' || arg[0] == 'i') {
             logic.type = arg[0] == 's'   ? LogicType::strict
                          : arg[0] == 'k' ? LogicType::category
                          : arg[0] == 'b' ? LogicType::block
+                         : arg[0] == 'i' ? LogicType::includes
                                          : LogicType::name;
             arg.erase(0, 1);
             logic.str = std::move(arg);

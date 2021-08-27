@@ -71,6 +71,8 @@ int STDCALL command_argv(int argc, char **argv) {
         word <words>:
             look up code info which consists <words>
         block <blocknames>:
+             look up code info which block property has same name as <blocknames>
+        include <blocknames>:
             look up code info which block property has string <blocknames>
         logic <expr>:
             look up code which <expr> is true (see below)
@@ -78,13 +80,14 @@ int STDCALL command_argv(int argc, char **argv) {
                 <and>:= "and" <expr> <expr>
                 <or>:= "or" <expr> <expr>
                 <not>:= "not" <expr>
-                <prim>:=<name>|<strict>|<category>|<code>|<range>|<block>
+                <prim>:=<name>|<strict>|<category>|<code>|<range>|<block>|<include>
                 <name>:="n"<anystr>
                 <strict>:="s"<anystr>
                 <category>:="k"<anystr>
                 <code>:="c"<number>
                 <range>:="r"<number>?"-"<number>?
                 <block>:="b"<anystr>
+                <include>:="i"<anystr>
                 <number>:=(hex(begin with "0x") or bin(begin with "0b") or digit)
                 <anystr>:=(any string)
     txt2bin [<option>] <txt> <bin>:
