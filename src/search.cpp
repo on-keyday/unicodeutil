@@ -104,6 +104,20 @@ int search(int argc, char **argv, int i, bool rnflag) {
             }
         }
     }
+    else if (arg == "block") {
+        for (; i < argc; i++) {
+            for (auto k = 0; k < 0x110000; k++) {
+                CODEINFO info = nullptr;
+                if (get_codeinfo(data, k, &info)) {
+                    std::string str(get_block(info));
+                    if (str.find(argv[i]) != ~0) {
+                        print_out(info);
+                    }
+                    clean_codeinfo(&info);
+                }
+            }
+        }
+    }
     else if (arg == "category") {
         for (; i < argc; i++) {
             for (auto k = 0; k < 0x110000; k++) {
@@ -161,7 +175,7 @@ int search(int argc, char **argv, int i, bool rnflag) {
             for (auto k = 0; k < 0x110000; k++) {
                 CODEINFO info = nullptr;
                 if (get_codeinfo(data, k, &info)) {
-                    if (logic(k, get_charname(info), get_category(info))) {
+                    if (logic(k, get_charname(info), get_category(info), get_block(info))) {
                         print_out(info);
                     }
                     clean_codeinfo(&info);

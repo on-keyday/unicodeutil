@@ -267,7 +267,15 @@ const char *STDCALL get_east_asian_wides(CODEINFO point) {
     return info->base->east_asian_wides.c_str();
 }
 
-int STDCALL get_numeric_digit(CODEINFO point) {
+const char *STDCALL get_block(CODEINFO point) {
+    if (!point)
+        return nullptr;
+    CODEINFO_impl *info = point;
+    return info->base->block.c_str();
+}
+
+int STDCALL
+get_numeric_digit(CODEINFO point) {
     if (!point)
         return -1;
     CODEINFO_impl *info = point;

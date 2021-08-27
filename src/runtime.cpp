@@ -69,25 +69,30 @@ int STDCALL command_argv(int argc, char **argv) {
         range  [<begin>]-[<end>]:
             look up code info in code range <begin> to <end>(default:0-0x10ffff)
         word <words>:
-            look up code info which configure <words>
+            look up code info which consists <words>
+        block <blocknames>:
+            look up code info which block property has string <blocknames>
         logic <expr>:
             look up code which <expr> is true (see below)
                 <expr>:=<and>|<or>|<not>|<prim>
                 <and>:= "and" <expr> <expr>
                 <or>:= "or" <expr> <expr>
                 <not>:= "not" <expr>
-                <prim>:=<name>|<strict>|<category>|<code>|<range>
+                <prim>:=<name>|<strict>|<category>|<code>|<range>|<block>
                 <name>:="n"<anystr>
                 <strict>:="s"<anystr>
                 <category>:="k"<anystr>
                 <code>:="c"<number>
                 <range>:="r"<number>?"-"<number>?
+                <block>:="b"<anystr>
                 <number>:=(hex(begin with "0x") or bin(begin with "0b") or digit)
+                <anystr>:=(any string)
     txt2bin [<option>] <txt> <bin>:
         make binary for this program from unicodedata.txt 
         <txt>:path to unicodedata.txt
         <bin>:path to unicodedata.bin (any name)
         -a <file>:refer EastAsianWide.txt
+        -b <fike>:refer Blocks.txt
     utf8,utf16,utf32:
         convert UTF-8,UTF-16,UTF-32 for each other
         -o <file>:stdout to <file>

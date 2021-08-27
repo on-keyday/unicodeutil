@@ -4,7 +4,7 @@
 
 using namespace commonlib2;
 int binarymake(int argc, char **argv) {
-    std::string asianfile, txtfile, binfile;
+    std::string asianfile, txtfile, binfile, blockfile;
     for (int i = 2; i < argc; i++) {
         std::string arg = argv[i];
         if (!asianfile.size() && arg == "-a") {
@@ -14,6 +14,14 @@ int binarymake(int argc, char **argv) {
                 return -1;
             }
             asianfile = argv[i];
+        }
+        else if (!blockfile.size() && arg == "-b") {
+            i++;
+            if (i >= argc) {
+                Clog << "error:need file path\n";
+                return -1;
+            }
+            blockfile = argv[i];
         }
         else if (!txtfile.size()) {
             txtfile = std::move(arg);
@@ -60,6 +68,27 @@ int binarymake(int argc, char **argv) {
             return -1;
         }
     }
+
+    if (blockfile.size()) {
+#ifdef _WIN32
+        tmp = L"";
+        Reader(blockfile) >> tmp;
+        auto vec = load_Blocks_text(tmp.c_str());
+#else
+        auto vec = load_Blocks_text(asianfile.c_str());
+#endif
+        if (!vec.size()) {
+            Clog << "error:failed to load block from " << blockfile
+                 << "\n";
+            return -1;
+        }
+        if (!apply_blockname(vec, *(UnicodeData *)data)) {
+            Clog << "error:failed to apply block from " << blockfile
+                 << "\n";
+            return -1;
+        }
+    }
+
 #if _WIN32
     tmp = L"";
     Reader(binfile) >> tmp;

@@ -16,6 +16,7 @@ enum class LogicType {
     name,
     code,
     category,
+    block,
 };
 
 struct Logic {
@@ -25,14 +26,14 @@ struct Logic {
     uint32_t code2 = ~0;
     std::vector<Logic> child;
 
-    bool operator()(uint32_t code, const char *name, const char *category) {
+    bool operator()(uint32_t code, const char *name, const char *category, const char *block) {
         switch (type) {
             case LogicType::and_:
-                return child[0](code, name, category) && child[1](code, name, category);
+                return child[0](code, name, category,block) && child[1](code, name, category,block);
             case LogicType::or_:
-                return child[0](code, name, category) || child[1](code, name, category);
+                return child[0](code, name, category,block) || child[1](code, name, category,block);
             case LogicType::not_:
-                return !child[0](code, name, category);
+                return !child[0](code, name, category,block);
             case LogicType::range:
                 return code >= code1 && code <= code2;
             case LogicType::strict:
@@ -43,6 +44,8 @@ struct Logic {
                 return code1 == code;
             case LogicType::category:
                 return std::string(category).find(str) != ~0;
+            case LogicType::block:
+                return std::string(block).find(str) != ~0;
         }
     }
 };

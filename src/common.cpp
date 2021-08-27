@@ -41,6 +41,9 @@ void print_codeinfo(CODEINFO info, bool u8, bool few) {
          << "\n";
     Cout << "name: " << get_charname(info) << "\n";
     if (!few) {
+        if (auto block = get_block(info); block[0]) {
+            Cout << "block: " << block << "\n";
+        }
         Cout << "category: " << get_category(info) << "\n";
         Cout << "ccc: " << get_ccc(info) << "\n";
         Cout << "bidiclass: " << get_bidiclass(info) << "\n";
@@ -155,9 +158,10 @@ bool logic_parse(int &i, int argc, char **argv, Logic &logic) {
             }
             logic.type = LogicType::range;
         }
-        else if (arg[0] == 'n' || arg[0] == 's' || arg[0] == 'k') {
+        else if (arg[0] == 'n' || arg[0] == 's' || arg[0] == 'k' || arg[0] == 'b') {
             logic.type = arg[0] == 's'   ? LogicType::strict
                          : arg[0] == 'k' ? LogicType::category
+                         : arg[0] == 'b' ? LogicType::block
                                          : LogicType::name;
             arg.erase(0, 1);
             logic.str = std::move(arg);
@@ -171,7 +175,7 @@ bool logic_parse(int &i, int argc, char **argv, Logic &logic) {
         }
         else {
             Clog << "error:invalid prefix: allows: r-range c-code n-name "
-                    "s-strict not and or\n";
+                    "s-strict b-block not and or\n";
             return false;
         }
         ok = true;

@@ -45,7 +45,8 @@ DLL_EXPORT int STDCALL get_numeric_digit(CODEINFO point);
 DLL_EXPORT int STDCALL get_numeric_decimal(CODEINFO point);
 DLL_EXPORT double STDCALL get_numeric_number(CODEINFO point);
 DLL_EXPORT const char *STDCALL get_numeric_number_str(CODEINFO point);
-DLL_EXPORT const char *STDCALL get_u8str(CODEINFO point, size_t *size);
+DLL_EXPORT const char *STDCALL get_u8str(CODEINFO point, size_t *size); 
+DLL_EXPORT const char *STDCALL get_block(CODEINFO point);
 DLL_EXPORT void clean_codeinfo(CODEINFO *pinfo);
 
 DLL_EXPORT void STDCALL release_unicodedata(HUNICODEDATA f);
