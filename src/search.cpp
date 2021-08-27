@@ -110,7 +110,7 @@ int search(int argc, char **argv, int i, bool rnflag) {
                 CODEINFO info = nullptr;
                 if (get_codeinfo(data, k, &info)) {
                     std::string str(get_block(info));
-                    if (str.find(argv[i]) != ~0) {
+                    if (str==argv[i]) {
                         print_out(info);
                     }
                     clean_codeinfo(&info);
