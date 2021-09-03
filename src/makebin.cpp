@@ -3,9 +3,9 @@
 #include "common.h"
 
 using namespace commonlib2;
-int binarymake(int argc, char **argv) {
+int binarymake(int argc, char **argv, int i) {
     std::string asianfile, txtfile, binfile, blockfile;
-    for (int i = 2; i < argc; i++) {
+    for (; i < argc; i++) {
         std::string arg = argv[i];
         if (!asianfile.size() && arg == "-a") {
             i++;

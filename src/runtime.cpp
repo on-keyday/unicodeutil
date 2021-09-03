@@ -24,23 +24,24 @@ int STDCALL init_io(int sync, const char **err) {
     return init_io_detail((bool)sync, err);
 }
 
-int STDCALL command_argv(int argc, char **argv) {
+int STDCALL command_argv(int argc, char **argv, int i) {
     if (!init_io_detail()) return -1;
     if (argc < 2) {
         return -1;
     }
-    std::string cmd = argv[1];
+    std::string cmd = argv[i];
+    i++;
     if (cmd == "txt2bin") {
-        return binarymake(argc, argv);
+        return binarymake(argc, argv, i);
     }
     else if (cmd == "search") {
-        return search(argc, argv);
+        return search(argc, argv, i);
     }
     else if (cmd == "utf8" || cmd == "utf16" || cmd == "utf32") {
-        return utfshow(cmd, argc, argv);
+        return utfshow(cmd, argc, argv, i);
     }
     else if (cmd == "random") {
-        return random_gen(argc, argv);
+        return random_gen(argc, argv, i);
     }
     else if (cmd == "help") {
         const char *helpstr =
@@ -124,7 +125,7 @@ int STDCALL command_argv(int argc, char **argv) {
         return 0;
     }
     else {
-        Clog << "command " << cmd << " unspported\n";
+        Clog << "command " << cmd << " unspported\ntype unicode help for help";
     }
     return -1;
 }
@@ -149,7 +150,7 @@ int command_str_impl(const C *str) {
     char **argv = nullptr;
     int argc = 0;
     argv = input.argv(argc);
-    return command_argv(argc, argv);
+    return command_argv(argc, argv, 1);
 }
 
 #if USE_CALLBACK
@@ -213,5 +214,5 @@ int STDCALL runtime_main(int argc, char **argv) {
         Cin.getline(in);
         return command_str(in.c_str(), 0);
     }
-    return command_argv(argc, argv);
+    return command_argv(argc, argv, 1);
 }

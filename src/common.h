@@ -59,7 +59,7 @@ bool get_code(const char *str, uint32_t &code, const char *msg = "warning");
 bool logic_parse(int &i, int argc, char **argv, Logic &logic);
 bool get_range(const char *str, uint32_t &begin, uint32_t &end, const char *msg = "warning");
 
-int binarymake(int argc, char **argv);
+int binarymake(int argc, char **argv, int i);
 
 bool get_morearg(std::string &output, int &i, int argc, char **argv);
 
@@ -67,6 +67,6 @@ bool openfile(int &i, int argc, char **argv);
 
 int search(int argc, char **argv, int i = 2, bool rnflag = false);
 
-int utfshow(std::string &cmd, int argc, char **argv);
+int utfshow(std::string &cmd, int argc, char **argv, int i);
 
-int random_gen(int argc, char **argv);
+int random_gen(int argc, char **argv, int i);

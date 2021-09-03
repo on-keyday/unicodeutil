@@ -269,11 +269,10 @@ int show_range(std::string& cmd, int& i, int argc, char** argv, FormatFlags& fla
     return 0;
 }
 
-int utfshow(std::string& cmd, int argc, char** argv) {
+int utfshow(std::string& cmd, int argc, char** argv, int i) {
     bool ok = false;
     bool output = false;
     FormatFlags flags;
-    int i = 2;
     for (; i < argc; i++) {
         if (argv[i][0] == '-') {
             for (auto& c : std::string_view(argv[i]).substr(1)) {

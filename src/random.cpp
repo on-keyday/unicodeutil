@@ -75,8 +75,7 @@ void gen_random_seeds(std::vector<unsigned int>& seed_data) {
     std::generate(seed_data.begin(), seed_data.end(), std::ref(seed_gen));
 }
 
-int random_gen(int argc, char** argv) {
-    int i = 2;
+int random_gen(int argc, char** argv, int i) {
     size_t count = 10;
     size_t seedv = 0;
     std::vector<unsigned int> seeds;
