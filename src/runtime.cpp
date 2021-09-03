@@ -104,6 +104,8 @@ int STDCALL command_argv(int argc, char **argv, int i) {
     -b: input from stdin (the word input? will replace stdin input after split)
     help:
         show this help
+    echo:
+        echo cmdline
     search:
         search code point info by unicodedata
         -t <file>:refer unicodedata file (txt) (default:./unicodedata.txt)
