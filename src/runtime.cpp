@@ -46,7 +46,7 @@ int STDCALL command_argv(int argc, char **argv, int i) {
         if (argv[i][1] == 'i') {
             i++;
             for (; i < argc; i++) {
-                if (strcmp(argv[i], "!input!") == 0) {
+                if (strcmp(argv[i], "input!") == 0) {
                     std::string input;
                     Cin.getline(input);
                     arg.push_back(std::move(input));
@@ -59,7 +59,7 @@ int STDCALL command_argv(int argc, char **argv, int i) {
         else if (argv[i][1] == 'b') {
             i++;
             for (; i < argc; i++) {
-                if (strcmp(argv[i], "!input!") == 0) {
+                if (strcmp(argv[i], "input!") == 0) {
                     std::string input;
                     Cin.getline(input);
                     arg.translate(split_and_remove(input));
@@ -95,8 +95,8 @@ int STDCALL command_argv(int argc, char **argv, int i) {
             R"(help:
     if command line argument is empty, prompt ">>>>" or ">>" will show and 
     YOU need to input more!
-    -i: input from stdin (the word !input! will replace stdin input)
-    -b: input from stdin (the word !input! will replace stdin input after split)
+    -i: input from stdin (the word input! will replace stdin input)
+    -b: input from stdin (the word input! will replace stdin input after split)
     help:
         show this help
     search:
