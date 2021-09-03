@@ -156,6 +156,7 @@ int show_code(std::string& cmd, int& i, int argc, char** argv, FormatFlags& flag
     }
     if (!ok) {
         Clog << "error:need more arguments\n";
+        //<< argc << ":" << i;
         return -1;
     }
     if (!from.size()) {

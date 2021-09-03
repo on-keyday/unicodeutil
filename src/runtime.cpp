@@ -23,10 +23,15 @@ int init_io_detail(bool sync = false, const char **err = nullptr) {
 template <class C>
 auto split_and_remove(std::basic_string<C> &in) {
     auto tmp = split_cmd(in);
-    for (auto &o : tmp) {
+    for (auto i = 0; i < tmp.size(); i++) {
+        auto &o = tmp[i];
         if (o[0] == '"' || o[0] == '\'' || o[0] == '`') {
             o.erase(0, 1);
             o.pop_back();
+        }
+        if (o.size() == 0) {
+            tmp.erase(tmp.begin() + i);
+            i--;
         }
     }
     return tmp;
@@ -74,6 +79,7 @@ int STDCALL command_argv(int argc, char **argv, int i) {
             return -1;
         }
         argv = arg.argv(argc);
+        //Cout << "argc:" << argc << "\n";
         i = 0;
     }
     std::string cmd = argv[i] ? argv[i] : "";
