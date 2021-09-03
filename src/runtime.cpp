@@ -90,6 +90,11 @@ int STDCALL command_argv(int argc, char **argv, int i) {
     else if (cmd == "random") {
         return random_gen(argc, argv, i);
     }
+    else if (cmd == "echo") {
+        for (; i < argc; i++) {
+            Cout << argv[i];
+        }
+    }
     else if (cmd == "help") {
         const char *helpstr =
             R"(help:
@@ -174,7 +179,7 @@ int STDCALL command_argv(int argc, char **argv, int i) {
         return 0;
     }
     else {
-        Clog << "command " << cmd << " unspported\ntype unicode help for help";
+        Clog << "command " << cmd << " unspported\ntype unicode help for help\n";
     }
     return -1;
 }
