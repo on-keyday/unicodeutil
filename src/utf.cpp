@@ -11,6 +11,7 @@ struct FormatFlags {
     bool prefix = false;
     bool space = true;
     bool raw = false;
+    bool decimal = false;
 };
 
 template <class C>
@@ -29,7 +30,10 @@ void print_as_command(const C& str, std::string& cmd, FormatFlags& flags) {
         Reader(str) >> tmp;
         for (auto& c : tmp) {
             print_prefix();
-            Cout << std::setfill('0') << std::hex << std::setw(2) << (unsigned int)(unsigned char)c;
+            if (!flags.decimal) {
+                Cout << std::setfill('0') << std::hex << std::setw(2);
+            }
+            Cout << (unsigned int)(unsigned char)c;
             first = false;
         }
     }
@@ -38,7 +42,10 @@ void print_as_command(const C& str, std::string& cmd, FormatFlags& flags) {
         Reader(str) >> tmp;
         for (auto& c : tmp) {
             print_prefix();
-            Cout << std::setfill('0') << std::hex << std::setw(4) << (unsigned int)c;
+            if (!flags.decimal) {
+                Cout << std::setfill('0') << std::hex << std::setw(4);
+            }
+            Cout << (unsigned int)c;
             first = false;
         }
     }
@@ -47,7 +54,10 @@ void print_as_command(const C& str, std::string& cmd, FormatFlags& flags) {
         Reader(str) >> tmp;
         for (auto& c : tmp) {
             print_prefix();
-            Cout << std::setfill('0') << std::hex << std::setw(8) << (unsigned int)c;
+            if (!flags.decimal) {
+                Cout << std::setfill('0') << std::hex << std::setw(8);
+            }
+            Cout << (unsigned int)c;
             first = false;
         }
     }
@@ -281,6 +291,9 @@ int utfshow(std::string& cmd, int argc, char** argv) {
                 }
                 else if (!flags.raw && c == 'r') {
                     flags.raw = true;
+                }
+                else if (!flags.decimal && c == 'd') {
+                    flags.decimal = true;
                 }
                 else {
                     Clog << "warning: ignored '" << c << "'\n";

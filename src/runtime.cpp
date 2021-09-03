@@ -102,6 +102,7 @@ int STDCALL command_argv(int argc, char **argv) {
         -p :set hex prefix
         -n :no space (ex: e8 97 a4 -> e897a4)
         -r :show raw(UTF-8) character
+        -d :show as decimal
         word <words>:
            convert <words> to referred UTF
         code [<option>] <codes>:

@@ -47,7 +47,7 @@ void print_codeinfo(CODEINFO info, bool u8, bool few) {
         Cout << "category: " << get_category(info) << "\n";
         Cout << "ccc: " << get_ccc(info) << "\n";
         Cout << "bidiclass: " << get_bidiclass(info) << "\n";
-        Cout << "east_asian_wides: " << get_east_asian_wides(info) << "\n";
+        Cout << "east_asian_width: " << get_east_asian_wides(info) << "\n";
         Cout << "mirrored: " << std::boolalpha << (bool)is_mirrored(info)
              << "\n";
     }

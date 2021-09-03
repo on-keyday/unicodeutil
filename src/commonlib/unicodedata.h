@@ -97,7 +97,7 @@ namespace PROJECT_NAME {
         std::string category;
         unsigned int ccc = 0;  //Canonical_Combining_Class
         std::string bidiclass;
-        std::string east_asian_wides;
+        std::string east_asian_width;
         Decomposition decomposition;
         Numeric numeric;
         bool mirrored = false;
@@ -197,20 +197,20 @@ namespace PROJECT_NAME {
 
     inline void guess_east_asian_wide(CodeInfo& info) {
         if (info.decomposition.command == "<wide>") {
-            info.east_asian_wides = "F";
+            info.east_asian_width = "F";
         }
         else if (info.decomposition.command == "<narrow>") {
-            info.east_asian_wides = "H";
+            info.east_asian_width = "H";
         }
         else if (info.name.find("CJK") != ~0 || info.name.find("HIRAGANA") != ~0 ||
                  info.name.find("KATAKANA") != ~0) {
-            info.east_asian_wides = "W";
+            info.east_asian_width = "W";
         }
         else if (info.name.find("GREEK") != ~0) {
-            info.east_asian_wides = "A";
+            info.east_asian_width = "A";
         }
         else {
-            info.east_asian_wides = "U";
+            info.east_asian_width = "U";
         }
     }
 
@@ -341,7 +341,7 @@ namespace PROJECT_NAME {
                 Reader("0x" + code[0]) >> c;
                 if (auto found = data.codes.find(c); found != data.codes.end()) {
                     CodeInfo& info = (*found).second;
-                    info.east_asian_wides = e[1];
+                    info.east_asian_width = e[1];
                 }
             }
             else if (code.size() == 2) {
@@ -351,7 +351,7 @@ namespace PROJECT_NAME {
                 for (auto i = first; i <= last; i++) {
                     if (auto found = data.codes.find(i); found != data.codes.end()) {
                         CodeInfo& info = (*found).second;
-                        info.east_asian_wides = e[1];
+                        info.east_asian_width = e[1];
                     }
                 }
             }
@@ -457,8 +457,8 @@ namespace PROJECT_NAME {
             }
         }
         if (version >= 2) {
-            w.template write_as<unsigned char>(info.east_asian_wides.size());
-            w.write_byte(info.east_asian_wides);
+            w.template write_as<unsigned char>(info.east_asian_width.size());
+            w.write_byte(info.east_asian_width);
         }
         if(version>=4){
             if(block!=info.block){
@@ -558,7 +558,7 @@ namespace PROJECT_NAME {
         }
         if (version >= 2) {
             if (!r.template read_as<unsigned char>(size)) return false;
-            if (!r.read_byte(info.east_asian_wides, size)) return false;
+            if (!r.read_byte(info.east_asian_width, size)) return false;
         }
         else {
             guess_east_asian_wide(info);
