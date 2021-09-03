@@ -41,6 +41,7 @@ int gen_randomstring(size_t count, std::u32string& seed, Engine& engine, bool in
                 continue;
             }
         }
+
         result += seed[idx];
 
         if (index) {

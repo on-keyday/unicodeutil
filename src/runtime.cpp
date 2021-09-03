@@ -54,6 +54,17 @@ int STDCALL command_argv(int argc, char **argv, int i) {
                 if (strcmp(argv[i], "input?") == 0) {
                     std::string input;
                     Cin.getline(input);
+
+                    /*
+                    Cout << input.size() << "\n";
+                    std::wstring str;
+                    Reader<std::string>(input) >> str;
+                    Cout << str.size() << "\n";
+                    for (auto i : str) {
+                        Cout << (unsigned int)i << "\n";
+                        break;
+                    }
+                    //*/
                     arg.push_back(std::move(input));
                 }
                 else {
