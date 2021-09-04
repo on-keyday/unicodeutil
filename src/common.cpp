@@ -58,7 +58,7 @@ void print_codeinfo(CODEINFO info, bool u8, bool few) {
         size_t i = 0;
         const char32_t *p = get_decompsition(info, &i);
         if (i) {
-            Cout << "decompsition: ";
+            Cout << "decomposition: ";
             for (auto s = 0; s < i; s++) {
                 if (s) {
                     Cout << " ";
