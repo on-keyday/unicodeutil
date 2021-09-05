@@ -10,7 +10,7 @@ bool check_charname(const std::string &str, char *cmp, bool strict) {
 
 int search(int argc, char **argv, int i, bool rnflag) {
     bool ok = false;
-    bool bin = true;
+    bool bin = false;
     bool u8 = false;
     bool quiet = false;
     bool onlyraw = rnflag;
@@ -67,6 +67,7 @@ int search(int argc, char **argv, int i, bool rnflag) {
             data = unicodedata_from_binary(infile.c_str());
         }
         else {
+            Cout << "as text\n";
             data = unicodedata_from_text(infile.c_str());
         }
     }

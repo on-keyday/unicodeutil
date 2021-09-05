@@ -221,7 +221,7 @@ namespace PROJECT_NAME {
         info.codepoint = (char32_t)codepoint;
         info.name = d[1];
         info.category = d[2];
-        Reader("0x" + d[3]) >> info.ccc;
+        Reader(d[3]) >> info.ccc;
         info.bidiclass = d[4];
         parse_decomposition(d[5], info.decomposition);
         parse_numeric(d, info);
@@ -384,17 +384,17 @@ namespace PROJECT_NAME {
             return false;
         }
         w.write_hton(info.codepoint);
-        w.template write_as<char>(info.name.size());
+        w.template write_as<unsigned char>(info.name.size());
         w.write_byte(info.name);
-        w.template write_as<char>(info.category.size());
+        w.template write_as<unsigned char>(info.category.size());
         w.write_byte(info.category);
-        w.template write_as<char>(info.ccc);
-        w.template write_as<char>(info.bidiclass.size());
+        w.template write_as<unsigned char>(info.ccc);
+        w.template write_as<unsigned char>(info.bidiclass.size());
         w.write_byte(info.bidiclass);
-        w.template write_as<char>(info.decomposition.command.size());
+        w.template write_as<unsigned char>(info.decomposition.command.size());
         w.write_byte(info.decomposition.command);
         size_t size = info.decomposition.to.size();
-        w.template write_as<char>(size * sizeof(char32_t));
+        w.template write_as<unsigned char>(size * sizeof(char32_t));
         w.write_hton(info.decomposition.to.data(), size);
         auto write_numeric3 = [&] {
             if (info.numeric.flag & large_numbit) {
@@ -410,11 +410,11 @@ namespace PROJECT_NAME {
             }
         };
         if (version <= 2) {
-            w.template write_as<char>(info.numeric.v1);
-            w.template write_as<char>(info.numeric.v2);
+            w.template write_as<unsigned char>(info.numeric.v1);
+            w.template write_as<unsigned char>(info.numeric.v2);
             if (version == 0) {
                 std::string str = info.numeric.stringify();
-                w.template write_as<char>(str.size());
+                w.template write_as<unsigned char>(str.size());
                 w.write_byte(str);
             }
             else if (version >= 1) {
@@ -431,14 +431,14 @@ namespace PROJECT_NAME {
             }
             w.template write_as<unsigned char>(info.numeric.flag|fl);
             if (info.numeric.flag & has_digit) {
-                w.template write_as<char>(info.numeric.v1);
+                w.template write_as<unsigned char>(info.numeric.v1);
             }
             if (info.numeric.flag & has_decimal) {
-                w.template write_as<char>(info.numeric.v2);
+                w.template write_as<unsigned char>(info.numeric.v2);
             }
             write_numeric3();
         }
-        w.template write_as<char>(info.mirrored);
+        w.template write_as<unsigned char>(info.mirrored);
         if (version <= 2) {
             w.write_hton(info.casemap.upper);
             w.write_hton(info.casemap.lower);
