@@ -1,5 +1,6 @@
 /*
-    Copyright (c) 2021 on-keyday
+    commonlib - common utility library
+    Copyright (c) 2021 on-keyday (https://github.com/on-keyday)
     Released under the MIT license
     https://opensource.org/licenses/mit-license.php
 */
@@ -95,7 +96,7 @@ namespace PROJECT_NAME {
         return split<Str, Refer<const Str>, Token, Vec>(r, token, n);
     }
 
-    template <class C, class Token, class Buf = std::basic_string<C>, class Vec = std::vector<Buf>>
+    template <class C, class Token, class Buf = std::basic_string<std::remove_cv_t<C>>, class Vec = std::vector<Buf>>
     Vec split(C* str, const Token& token, size_t n = (size_t)-1, bool needafter = true) {
         return split<Buf, Token, Vec>(Buf(str), token, n);
     }
@@ -104,7 +105,7 @@ namespace PROJECT_NAME {
     Vec split_cmd(Reader<Buf>& r, size_t n = (size_t)-1, bool line = false) {
         Vec ret;
         size_t count = 0;
-        while (!r.ceof() && count < n) {
+        while (!r.eof() && count < n) {
             Str str;
             int ctx = (int)line;
             r.readwhile(str, cmdline_read, &ctx);
@@ -131,6 +132,23 @@ namespace PROJECT_NAME {
     template <class C, class Buf = std::basic_string<std::remove_cv_t<C>>, class Vec = std::vector<Buf>>
     Vec split_cmd(C* str, size_t n = (size_t)-1, bool line = false) {
         return split_cmd<Buf, Vec>(Buf(str), n, line);
+    }
+
+    template <class Buf, class Str, class cmp_t = cmpf_t<Buf>, class not_expect_t = nexpf_t<Buf>>
+    bool str_eq(Reader<Buf>& r, Str&& token, cmp_t&& cmp = Reader<Buf>::default_cmp, not_expect_t&& nexpt = not_expect_t()) {
+        return r.expect(token, nexpt, cmp) && r.eof();
+    }
+
+    template <class Buf, class Str, class cmp_t = cmpf_t<Buf>, class not_expect_t = nexpf_t<Buf>>
+    bool str_eq(Buf&& base, Str&& token, cmp_t&& cmp = Reader<Buf>::default_cmp, not_expect_t&& nexpt = not_expect_t()) {
+        Reader<Buf> r(std::forward<Buf>(base));
+        return str_eq(r, token, cmp, nexpt);
+    }
+
+    template <class C, class Str, class cmp_t = cmpf_t<C*>, class not_expect_t = nexpf_t<C*>>
+    bool str_eq(C* base, Str&& token, cmp_t&& cmp = Reader<C*>::default_cmp, not_expect_t&& nexpt = not_expect_t()) {
+        Reader<C*> r(base);
+        return str_eq(r, token, cmp, nexpt);
     }
 
 }  // namespace PROJECT_NAME

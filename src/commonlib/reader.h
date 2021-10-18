@@ -1,5 +1,6 @@
 /*
-    Copyright (c) 2021 on-keyday
+    commonlib - common utility library
+    Copyright (c) 2021 on-keyday (https://github.com/on-keyday)
     Released under the MIT license
     https://opensource.org/licenses/mit-license.php
 */
@@ -16,8 +17,8 @@
 
 namespace PROJECT_NAME {
 
-    template <class T,class C=char>
-    T translate_byte_as_is(const C* s) {
+    template <class T, class C = char>
+    constexpr T translate_byte_as_is(const C* s) {
         T res = T();
         res.~T();
         char* res_p = (char*)&res;
@@ -27,8 +28,8 @@ namespace PROJECT_NAME {
         return res;
     }
 
-    template <class T,class C=char>
-    T translate_byte_reverse(const C* s) {
+    template <class T, class C = char>
+    constexpr T translate_byte_reverse(const C* s) {
         T res = T();
         res.~T();
         char* res_p = (char*)&res;
@@ -53,8 +54,8 @@ namespace PROJECT_NAME {
 #endif
     }
 
-    template <class T,class C>
-    T translate_byte_net_and_host(const C* s) {
+    template <class T, class C>
+    constexpr T translate_byte_net_and_host(const C* s) {
 #if defined(__BIG_ENDIAN__)
         return translate_byte_as_is<T>(s);
 #elif defined(__LITTLE_ENDIAN__)
@@ -99,15 +100,15 @@ namespace PROJECT_NAME {
         using not_expect_default = bool (*)(Char);
         using cmp_default = bool (*)(Char, Char);
 
+        static bool default_cmp(Char c1, Char c2) {
+            return c1 == c2;
+        }
+
        private:
         size_t pos = 0;
         IgnoreHandler ignore_cb = nullptr;
         //bool stop=false;
         //bool refed=false;
-
-        static bool default_cmp(Char c1, Char c2) {
-            return c1 == c2;
-        }
 
         template <class Str>
         inline size_t strlen(Str str) const {
@@ -320,12 +321,12 @@ namespace PROJECT_NAME {
 #endif
 
         template <class Str, class NotExpect = not_expect_default, class Cmp = cmp_default>
-        size_t ahead(Str& str, NotExpect&& not_expect = NotExpect(), Cmp&& cmp = std::move(default_cmp)) {
+        size_t ahead(Str&& str, NotExpect&& not_expect = NotExpect(), Cmp&& cmp = std::move(default_cmp)) {
             return ahead_check(str, std::forward<NotExpect>(not_expect), std::forward<Cmp>(cmp));
         }
 
         template <class Str, class NotExpect = not_expect_default, class Cmp = cmp_default>
-        bool expect(Str& str, NotExpect&& not_expect = NotExpect(), Cmp&& cmp = std::move(default_cmp)) {
+        bool expect(Str&& str, NotExpect&& not_expect = NotExpect(), Cmp&& cmp = std::move(default_cmp)) {
             auto size = ahead(str, std::forward<NotExpect>(not_expect), std::forward<Cmp>(cmp));
             if (size == 0) return false;
             pos += size;
@@ -334,7 +335,7 @@ namespace PROJECT_NAME {
         }
 
         template <class Str, class Ctx, class NotExpect = not_expect_default, class Cmp = cmp_default>
-        bool expectp(Str& str, Ctx& ctx, NotExpect&& not_expect = NotExpect(), Cmp&& cmp = std::move(default_cmp)) {
+        bool expectp(Str&& str, Ctx& ctx, NotExpect&& not_expect = NotExpect(), Cmp&& cmp = std::move(default_cmp)) {
             if (expect<Str, NotExpect, Cmp>(str, std::forward<NotExpect>(not_expect), std::forward<Cmp>(cmp))) {
                 ctx = str;
                 return true;
@@ -368,6 +369,10 @@ namespace PROJECT_NAME {
         }
 
         bool seek(size_t p, bool strict = false) {
+            if (p == 0) {
+                this->pos = 0;
+                return true;
+            }
             auto sz = buf_size(buf);
             if (sz < p) {
                 if (strict) return false;

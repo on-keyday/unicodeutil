@@ -1,5 +1,6 @@
 /*
-    Copyright (c) 2021 on-keyday
+    commonlib - common utility library
+    Copyright (c) 2021 on-keyday (https://github.com/on-keyday)
     Released under the MIT license
     https://opensource.org/licenses/mit-license.php
 */
@@ -18,10 +19,21 @@
 #ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
+#ifndef COMMONLIB_IOWRAP_IO_CHARMODE
+#define COMMONLIB_IOWRAP_IO_CHARMODE _O_U8TEXT
+#endif
+#ifndef COMMONLIB_IOWRAP_IN_CHARMODE
+#define COMMONLIB_IOWRAP_IN_CHARMODE COMMONLIB_IOWRAP_IO_CHARMODE
+#endif
+#ifndef COMMONLIB_IOWRAP_OUT_CHARMODE
+#define COMMONLIB_IOWRAP_OUT_CHARMODE COMMONLIB_IOWRAP_IO_CHARMODE
+#endif
 #endif
 
 namespace PROJECT_NAME {
     struct IOWrapper {
+        using callback_t = void (*)(const char*, size_t, void*);
+
        private:
         static bool& Flag() {
             static bool flag = false;
@@ -32,15 +44,15 @@ namespace PROJECT_NAME {
             if (Flag()) return true;
             Flag() = true;
 #ifdef _WIN32
-            if (_setmode(_fileno(stdin), _O_U8TEXT) == -1) {
+            if (_setmode(_fileno(stdin), COMMONLIB_IOWRAP_IN_CHARMODE) == -1) {
                 err = "error:text input mode change failed";
                 return false;
             }
-            if (_setmode(_fileno(stdout), _O_U8TEXT) == -1) {
+            if (_setmode(_fileno(stdout), COMMONLIB_IOWRAP_OUT_CHARMODE) == -1) {
                 err = "error:text output mode change failed\n";
                 return false;
             }
-            if (_setmode(_fileno(stderr), _O_U8TEXT) == -1) {
+            if (_setmode(_fileno(stderr), COMMONLIB_IOWRAP_OUT_CHARMODE) == -1) {
                 err = "error:text error mode change failed\n";
                 return false;
             }
@@ -98,6 +110,8 @@ namespace PROJECT_NAME {
     //this is maybe faster than coutwrapper
     struct StdOutWrapper : IOWrapper {
        private:
+        callback_t cb = nullptr;
+        void* ctx = nullptr;
         FILE* fout = nullptr;
         FILE* base = nullptr;
         std::ostringstream ss;
@@ -113,13 +127,19 @@ namespace PROJECT_NAME {
                 ss << in;
                 return *this;
             }
-            ss.str("");
+            ss.str(std::string());
             ss << in;
             if (fout != base) {
                 std::string tmp = ss.str();
                 fwrite(tmp.c_str(), 1, tmp.size(), fout);
                 return *this;
             }
+            if (cb) {
+                std::string tmp = ss.str();
+                cb(tmp.c_str(), tmp.size(), ctx);
+                return *this;
+            }
+
             if (!Able_continue()) throw std::runtime_error("not called IOWrapper::Init() before io function");
 #ifdef _WIN32
             std::wstring tmp;
@@ -184,6 +204,19 @@ namespace PROJECT_NAME {
         bool is_file() {
             return fout != base;
         }
+
+        void set_callback(callback_t in, void* inctx = nullptr) {
+            cb = in;
+            ctx = inctx;
+        }
+
+        callback_t get_callback() {
+            return cb;
+        }
+
+        void* get_ctx() {
+            return ctx;
+        }
     };
 
     struct CinWrapper : IOWrapper {
@@ -247,29 +280,32 @@ namespace PROJECT_NAME {
         }
 
         size_t readsome(std::string& out) {
+            throw std::runtime_error("async io not implemented");
             if (!Able_continue()) throw std::runtime_error("not called IOWrapper::Init() before io function");
             size_t ret = 0;
             /*if (get_initial(out)) {
                 return out.size();
             }*/
 
-            while (in.rdbuf()->in_avail() > 0) {
+            while (in.peek()) {
 #ifdef _WIN32
-                wchar_t str[100] = {0};
+                wchar_t c;
 #else
-                char str[100] = {0};
+                char c;
 #endif
-                auto red = in.readsome(str, 100);
-                if (red > 0) {
-#ifdef _WIN32
-                    std::string tmp;
-                    Reader(Sized(str, red)) >> tmp;
-                    out += tmp;
-#else
-                    out += std::string(str, red);
-#endif
-                    ret += red;
+                if (!in.get(c)) {
+                    in.clear();
+                    break;
                 }
+
+#ifdef _WIN32
+                std::string tmp;
+                Reader(Sized(&c, 1)) >> tmp;
+                out += tmp;
+#else
+                out += c;
+#endif
+                ret++;
             }
             return ret;
         }
@@ -277,6 +313,8 @@ namespace PROJECT_NAME {
 
     struct CoutWrapper : IOWrapper {
        private:
+        callback_t cb = nullptr;
+        void* ctx = nullptr;
         std::ofstream file;
         std::ostringstream ss;
         bool onlybuffer = false;
@@ -296,9 +334,15 @@ namespace PROJECT_NAME {
                 ss << in;
                 return *this;
             }
-
             if (file.is_open()) {
                 file << in;
+                return *this;
+            }
+            if (cb) {
+                ss.str(std::string());
+                ss << in;
+                auto tmp = ss.str();
+                cb(tmp.c_str(), tmp.size(), ctx);
                 return *this;
             }
 
@@ -321,7 +365,7 @@ namespace PROJECT_NAME {
         }
 
         CoutWrapper& operator<<(std::ios_base& (*in)(std::ios_base&)) {
-            if (onlybuffer) {
+            if (cb || onlybuffer) {
                 ss << in;
                 return *this;
             }
@@ -371,6 +415,19 @@ namespace PROJECT_NAME {
         bool is_file() const {
             return (bool)file;
         }
+
+        void set_callback(callback_t in, void* inctx = nullptr) {
+            cb = in;
+            ctx = inctx;
+        }
+
+        callback_t get_callback() {
+            return cb;
+        }
+
+        void* get_ctx() {
+            return ctx;
+        }
     };
 
     inline CinWrapper& cin_wrapper() {
@@ -417,6 +474,54 @@ namespace PROJECT_NAME {
     inline StdOutWrapper& stderr_wrapper() {
         static StdOutWrapper StdErr(stderr);
         return StdErr;
+    }
+
+    template <class Out>
+    struct ThreadSafeOutPut {
+        std::mutex mut;
+        Out& out;
+        ThreadSafeOutPut(Out& o)
+            : out(o) {}
+        operator Out&() {
+            return out;
+        }
+
+        template <class T>
+        ThreadSafeOutPut& operator<<(T&& in) {
+            mut.lock();
+            out << in;
+            mut.unlock();
+            return *this;
+        }
+
+        Out& get() {
+            return out;
+        }
+    };
+
+    inline ThreadSafeOutPut<CoutWrapper>& cout_wrapper_s() {
+        static ThreadSafeOutPut<CoutWrapper> safe(cout_wrapper());
+        return safe;
+    }
+
+    inline ThreadSafeOutPut<CoutWrapper>& cerr_wrapper_s() {
+        static ThreadSafeOutPut<CoutWrapper> safe(cerr_wrapper());
+        return safe;
+    }
+
+    inline ThreadSafeOutPut<CoutWrapper>& clog_wrapper_s() {
+        static ThreadSafeOutPut<CoutWrapper> safe(clog_wrapper());
+        return safe;
+    }
+
+    inline ThreadSafeOutPut<StdOutWrapper>& stdout_wrapper_s() {
+        static ThreadSafeOutPut<StdOutWrapper> safe(stdout_wrapper());
+        return safe;
+    }
+
+    inline ThreadSafeOutPut<StdOutWrapper>& stderr_wrapper_s() {
+        static ThreadSafeOutPut<StdOutWrapper> safe(stderr_wrapper());
+        return safe;
     }
 
 }  // namespace PROJECT_NAME
