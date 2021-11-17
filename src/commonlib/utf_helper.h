@@ -16,22 +16,31 @@ namespace PROJECT_NAME {
         unsigned char minbuf[4] = {0};
         size_t pos = 0;
 
-        void push_back(unsigned char c) {
+        constexpr U8MiniBuffer() {}
+        constexpr U8MiniBuffer(const U8MiniBuffer& in) noexcept {
+            minbuf[0] = in.minbuf[0];
+            minbuf[1] = in.minbuf[1];
+            minbuf[2] = in.minbuf[2];
+            minbuf[3] = in.minbuf[3];
+            pos = in.pos;
+        }
+
+        constexpr void push_back(unsigned char c) {
             if (pos >= 4) return;
             minbuf[pos] = c;
             pos++;
         }
 
-        size_t size() const {
+        constexpr size_t size() const {
             return pos;
         }
 
-        unsigned char operator[](size_t p) {
+        constexpr unsigned char operator[](size_t p) const {
             if (p >= 4) return char();
             return minbuf[p];
         }
 
-        void reset() {
+        constexpr void reset() {
             pos = 0;
             minbuf[0] = 0;
             minbuf[1] = 0;
@@ -39,7 +48,7 @@ namespace PROJECT_NAME {
             minbuf[3] = 0;
         }
 
-        U8MiniBuffer& operator=(const U8MiniBuffer& in) {
+        constexpr U8MiniBuffer& operator=(const U8MiniBuffer& in) {
             reset();
             pos = in.pos;
             for (auto i = 0; i < pos; i++) {
@@ -48,7 +57,7 @@ namespace PROJECT_NAME {
             return *this;
         }
 
-        U8MiniBuffer& operator=(U8MiniBuffer&& in) {
+        constexpr U8MiniBuffer& operator=(U8MiniBuffer&& in) {
             reset();
             pos = in.pos;
             for (auto i = 0; i < pos; i++) {
@@ -63,28 +72,36 @@ namespace PROJECT_NAME {
         unsigned short minbuf[2] = {0};
         size_t pos = 0;
 
-        void push_back(unsigned short c) {
+        constexpr U16MiniBuffer() {}
+
+        constexpr U16MiniBuffer(const U16MiniBuffer& in) noexcept {
+            minbuf[0] = in.minbuf[0];
+            minbuf[1] = in.minbuf[1];
+            pos = in.pos;
+        }
+
+        constexpr void push_back(unsigned short c) {
             if (pos >= 2) return;
             minbuf[pos] = c;
             pos++;
         }
 
-        size_t size() const {
+        constexpr size_t size() const {
             return pos;
         }
 
-        char16_t operator[](size_t p) {
+        constexpr char16_t operator[](size_t p) const {
             if (p >= 2) return char();
             return minbuf[p];
         }
 
-        void reset() {
+        constexpr void reset() {
             pos = 0;
             minbuf[0] = 0;
             minbuf[1] = 0;
         }
 
-        U16MiniBuffer& operator=(const U16MiniBuffer& in) {
+        constexpr U16MiniBuffer& operator=(const U16MiniBuffer& in) {
             reset();
             pos = in.pos;
             for (auto i = 0; i < pos; i++) {
@@ -93,7 +110,7 @@ namespace PROJECT_NAME {
             return *this;
         }
 
-        U16MiniBuffer& operator=(U16MiniBuffer&& in) {
+        constexpr U16MiniBuffer& operator=(U16MiniBuffer&& in) {
             reset();
             pos = in.pos;
             for (auto i = 0; i < pos; i++) {
@@ -104,7 +121,7 @@ namespace PROJECT_NAME {
         }
     };
 
-    inline unsigned char utf8bits(int i) {
+    constexpr unsigned char utf8bits(int i) {
         const unsigned char maskbits[] = {
             //first byte mask
             0b10000000,
@@ -121,7 +138,7 @@ namespace PROJECT_NAME {
         return i >= 0 && i < sizeof(maskbits) ? maskbits[i] : 0;
     }
 
-    inline unsigned char utf8mask(unsigned char c, int i) {
+    constexpr unsigned char utf8mask(unsigned char c, int i) {
         if (i < 1 || i > 4) return 0;
         return (utf8bits(i) & c) == utf8bits(i - 1) ? utf8bits(i - 1) : 0;
     }
@@ -232,14 +249,41 @@ namespace PROJECT_NAME {
         return false;
     }
 
+    template <class Buf>
+    constexpr char32_t make_utf32_from_utf8(Buf& buf, int len, int offset = 0) {
+        if (len <= 0 || len > 4) {
+            return 0;
+        }
+        auto maskbit = [](int i) {
+            return (unsigned char)~utf8bits(i);
+        };
+        if (len == 0) {
+            return (char32_t)buf[offset];
+        }
+        char32_t ret = 0;
+        for (int i = 0; i < len; i++) {
+            auto mul = (len - i - 1);
+            auto shift = 6 * mul;
+            unsigned char masking = 0;
+            if (i == 0) {
+                masking = buf[offset] & maskbit(len - 1);
+            }
+            else {
+                masking = buf[offset + i] & maskbit(1);
+            }
+            ret |= masking << shift;
+        }
+        return ret;
+    }
+
     template <class Buf> /*,class Str>*/
     char32_t utf8toutf32_impl(Reader<Buf>* self, int* ctx) {
         //Str buf;
         U8MiniBuffer buf;
         utf8_read(self, buf, ctx, false);
         if (*ctx) return 0;
-        auto len = (int)buf.size();
-        if (len == 1) {
+        return make_utf32_from_utf8(buf, (int)buf.size(), 0);
+        /*if (len == 1) {
             return (char32_t)buf[0];
         }
         auto maskbit = [](int i) {
@@ -261,7 +305,7 @@ namespace PROJECT_NAME {
             }
             return ret;
         };
-        return (char32_t)make();
+        return (char32_t)make();*/
     }
 
     template <class Buf, class Ret>
@@ -279,17 +323,53 @@ namespace PROJECT_NAME {
         return false;
     }
 
+    template <class Buf>
+    constexpr bool make_utf8_from_utf32(char32_t C, Buf& buf) {
+        auto push = [&buf, C](int len) {
+            unsigned char mask = (unsigned char)~utf8bits(1);
+            for (auto i = 0; i < len; i++) {
+                auto mul = (len - 1 - i);
+                auto shift = 6 * mul;
+                unsigned char abyte = 0, shiftC = (unsigned char)(C >> shift);
+                if (i == 0) {
+                    abyte = utf8bits(len - 1) | (shiftC & mask);
+                }
+                else {
+                    abyte = utf8bits(0) | (shiftC & mask);
+                }
+                buf.push_back(abyte);
+            }
+        };
+        if (C < 0x80) {
+            buf.push_back((unsigned char)C);
+        }
+        else if (C < 0x800) {
+            push(2);
+        }
+        else if (C < 0x10000) {
+            push(3);
+        }
+        else if (C < 0x110000) {
+            push(4);
+        }
+        else {
+            return false;
+        }
+        return true;
+    }
+
     template <class Buf, class Ret>
     bool utf32toutf8(Reader<Buf>* self, Ret& ret, int*& ctx, bool begin) {
         static_assert(sizeof(typename Reader<Buf>::char_type) == 4, "");
         static_assert(sizeof(ret[0]) == 1, "");
-        using Char8 = remove_cv_ref<decltype(ret[0])>;
+        //using Char8 = remove_cv_ref<decltype(ret[0])>;
         if (begin) {
             if (!ctx) return false;
             return true;
         }
         if (!self) return true;
         unsigned int C = self->achar();
+        /*
         auto push = [&ret, C](int len) {
             Char8 mask = ~utf8bits(1);
             for (auto i = 0; i < len; i++) {
@@ -316,8 +396,8 @@ namespace PROJECT_NAME {
         }
         else if (C < 0x110000) {
             push(4);
-        }
-        else {
+        }*/
+        if (!make_utf8_from_utf32(C, ret)) {
             *ctx = C;
             return true;
         }
@@ -334,6 +414,19 @@ namespace PROJECT_NAME {
 
     inline char32_t make_surrogate_char(unsigned short first, unsigned short second) {
         return 0x10000 + (first - 0xD800) * 0x400 + (second - 0xDC00);
+    }
+
+    template <class Buf>
+    constexpr char32_t make_utf32_from_utf16(char16_t first, char16_t second = 0, bool check = false) {
+        if (second == 0) {
+            return (char32_t)first;
+        }
+        else {
+            if (check && (!is_utf16_surrogate_high(first) || !is_utf16_surrogate_low(second))) {
+                return 0;
+            }
+            return make_surrogate_char(first, second);
+        }
     }
 
     template <class Buf>
@@ -375,6 +468,23 @@ namespace PROJECT_NAME {
         return false;
     }
 
+    template <class Buf>
+    constexpr bool make_utf16_from_utf32(char32_t C, Buf& buf) {
+        if (C < 0 || C > 0x10FFFF) {
+            return false;
+        }
+        if (C < 0x10000) {
+            buf.push_back((char16_t)C);
+        }
+        else {
+            auto first = char16_t((C - 0x10000) / 0x400 + 0xD800);
+            auto second = char16_t((C - 0x10000) % 0x400 + 0xDC00);
+            buf.push_back(first);
+            buf.push_back(second);
+        }
+        return true;
+    }
+
     template <class Buf, class Ret>
     bool utf32toutf16(Reader<Buf>* self, Ret& ret, int*& ctx, bool begin) {
         static_assert(sizeof(typename Reader<Buf>::char_type) == 4, "");
@@ -385,6 +495,11 @@ namespace PROJECT_NAME {
         }
         if (!self) return true;
         auto C = self->achar();
+        if (!make_utf16_from_utf32(C, ret)) {
+            *ctx = 1;
+            return true;
+        }
+        /*
         if (C < 0 || C > 0x10FFFF) {
             *ctx = 1;
             return true;
@@ -398,6 +513,7 @@ namespace PROJECT_NAME {
             ret.push_back(first);
             ret.push_back(second);
         }
+        */
         return false;
     }
 
